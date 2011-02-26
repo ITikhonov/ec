@@ -53,6 +53,9 @@ main(int argc, char *argv[])
 
 void draw(cairo_t *cr);
 
+cairo_surface_t *overlay_s=0;
+cairo_t *overlay=0;
+
 static void win_draw()
 {
     cairo_surface_t *surface;
@@ -61,14 +64,17 @@ static void win_draw()
 
     XClearWindow(win.dpy, win.win);
 
-    surface = cairo_xlib_surface_create (win.dpy, win.win, visual,
+    surface=cairo_xlib_surface_create(win.dpy, win.win, visual,
 					 win.width, win.height);
     cr = cairo_create(surface);
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_set_font_size (cr, 100);
+    cairo_set_source_rgb(cr,0,0,0);
+    cairo_set_font_size (cr,100);
     cairo_scale(cr,0.1,0.1);
 
     draw(cr);
+    cairo_identity_matrix(cr);
+    cairo_set_source_surface(cr,overlay_s,0,0);
+    cairo_paint (cr);
 
     if (cairo_status (cr)) {
 	printf("Cairo is unhappy: %s\n",
@@ -78,6 +84,15 @@ static void win_draw()
 
     cairo_destroy(cr);
     cairo_surface_destroy (surface);
+    XFlush(win.dpy);
+}
+
+void recreate_overlay() {
+	overlay_s=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,win.width,win.height);
+	overlay=cairo_create(overlay_s);
+	cairo_set_source_rgb(overlay,0,0,0);
+	cairo_set_font_size (overlay,100);
+	cairo_scale(overlay,0.1,0.1);
 }
 
 static void
@@ -87,6 +102,8 @@ win_init(win_t *win)
 
     win->width = 400;
     win->height = 400;
+
+    recreate_overlay();
 
     root = DefaultRootWindow(win->dpy);
     win->scr = DefaultScreen(win->dpy);
@@ -145,7 +162,7 @@ int tagn=1;
 
 void addtag(int x,int y) {
 	tag[tagn].x=x;
-	tag[tagn].y=x;
+	tag[tagn].y=y;
 	tag[tagn].p=Pt8;
 	tagn++;
 }
@@ -161,9 +178,112 @@ void addtag(int x,int y) {
 
 enum { IDLE, TAG, EDIT, WIRE, UNWIRE } state=IDLE;
 
+void grid_step(int step,int *sx,int *sy) {
+	double x1,y1,x2,y2;
+	cairo_clip_extents(overlay,&x1,&y1,&x2,&y2);
+	double sx0=(x2-x1)/3;
+	double sy0=(y2-y1)/3;
+
+	if(step) {
+		double div=pow(3,step);
+		sx0/=div;
+		sy0/=div;
+		printf("step %u, div %lf\n",step,div);
+
+	}
+	*sx=sx0; *sy=sy0;
+}
+
+void target_grid(int x, int y, int sx, int sy) {
+	int x1,y1,x2,y2;
+	x1=x; x2=x+3*sx;
+	y1=y; y2=y+3*sy;
+
+	printf("%d %d/%d %d/%d %d\n",x1,x2,y1,y2,sx,sy);
+
+	cairo_save(overlay);
+
+	cairo_move_to(overlay,x1+sx,y1); cairo_line_to(overlay,x1+sx,y2); cairo_stroke(overlay);
+	cairo_move_to(overlay,x1+2*sx,y1); cairo_line_to(overlay,x1+2*sx,y2); cairo_stroke(overlay);
+
+	cairo_move_to(overlay,x1,y1+sy); cairo_line_to(overlay,x2,y1+sy); cairo_stroke(overlay);
+	cairo_move_to(overlay,x1,y1+2*sy); cairo_line_to(overlay,x2,y1+2*sy); cairo_stroke(overlay);
+
+
+	cairo_set_font_size(overlay,sy/2);
+	cairo_text_extents_t extents;
+	cairo_text_extents (overlay, "0", &extents);
+	x1-=(extents.width/2 + extents.x_bearing);
+	y1-=(extents.height/2 + extents.y_bearing);
+
+	cairo_set_source_rgba(overlay,1,0,0,0.2);
+
+	cairo_move_to(overlay,x1+sx*0.5,y1+sy*0.5); cairo_show_text(overlay,"1");
+	cairo_move_to(overlay,x1+sx*1.5,y1+sy*0.5); cairo_show_text(overlay,"2");
+	cairo_move_to(overlay,x1+sx*2.5,y1+sy*0.5); cairo_show_text(overlay,"3");
+
+	cairo_move_to(overlay,x1+sx*0.5,y1+sy*1.5); cairo_show_text(overlay,"4");
+	cairo_move_to(overlay,x1+sx*1.5,y1+sy*1.5); cairo_show_text(overlay,"5");
+	cairo_move_to(overlay,x1+sx*2.5,y1+sy*1.5); cairo_show_text(overlay,"6");
+
+	cairo_move_to(overlay,x1+sx*0.5,y1+sy*2.5); cairo_show_text(overlay,"7");
+	cairo_move_to(overlay,x1+sx*1.5,y1+sy*2.5); cairo_show_text(overlay,"8");
+	cairo_move_to(overlay,x1+sx*2.5,y1+sy*2.5); cairo_show_text(overlay,"9");
+
+	cairo_restore(overlay);
+}
+
+void draw_tag(cairo_t *c, char *id, struct tag *t);
+
+void Stag(char c) {
+	cairo_move_to(overlay,100,100);
+	cairo_show_text(overlay,"TAG");
+
+	static int x=0,y=0,step=0;
+	static struct tag t;
+
+	int sx,sy;
+	int dx=0,dy=0;
+
+	switch(c) {
+	case '0': break;
+	case '1': dx=0; dy=0; goto update_grid;
+	case '2': dx=1; dy=0; goto update_grid;
+	case '3': dx=2; dy=0; goto update_grid;
+	case '4': dx=0; dy=1; goto update_grid;
+	case '5': dx=1; dy=1; goto update_grid;
+	case '6': dx=2; dy=1; goto update_grid;
+	case '7': dx=0; dy=2; goto update_grid;
+	case '8': dx=1; dy=2; goto update_grid;
+	case '9': dx=2; dy=2; goto update_grid;
+	update_grid:
+		grid_step(step,&sx,&sy);
+		x+=sx*dx;
+		y+=sy*dy;
+
+		t.x=x; t.y=y; t.p=Pt8;
+		draw_tag(overlay,0,&t);
+
+		grid_step(++step,&sx,&sy);
+		target_grid(x,y,sx,sy);
+		break;
+	case '\r':
+		addtag(x,y);
+	case 27:
+		state=IDLE; break;
+	case 0:
+		x=y=step=0;
+		grid_step(step,&sx,&sy);
+		target_grid(x,y,sx,sy);
+	}
+
+	return;
+}
+
+
 void Sidle(c) {
 	switch(c) {
-	case 'o': state=TAG; break;
+	case 'o': state=TAG; Stag(0); break;
 	case 'w': state=WIRE; break;
 	case 'u': state=UNWIRE; break;
 	case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
@@ -171,29 +291,23 @@ void Sidle(c) {
 	}
 }
 
-void Stag(char c) {
-	static enum { X,Y } st=X;
-	static int x=0,y=0;
-	switch(c) {
-	case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-		if(st==X) { x*=10; x+=c-'0'; } else { y*=10; y+=c-'0'; }
-		break;
-	case '/':
-		if(st==X) st=Y; break;
-	case '\r':
-		if(st==Y) { addtag(x,y); x=0; y=0; st=X; state=IDLE; } break;
-	}
-}
-
 int handle_key(char c) {
+	cairo_save(overlay);
+	cairo_set_source_rgba(overlay,1,1,1,0);
+	cairo_set_operator(overlay,CAIRO_OPERATOR_SOURCE);
+	cairo_paint(overlay);
+	cairo_restore(overlay);
+	cairo_set_source_rgb(overlay,0,0,0);
+
 	switch(state) {
 	case IDLE:
 		if(c=='q') return 1;
 		Sidle(c); break;
 	case TAG:	Stag(c); break;
-	//case EDIT:	Sedit(c); break;
-	//case WIRE:	Swire(c); break;
-	//case UNWIRE:	Sunwire(c); break;
+	case EDIT:	//Sedit(c); break;
+	case WIRE:	//Swire(c); break;
+	case UNWIRE:	//Sunwire(c); break;
+		break;
 	}
 	win_draw();
 	return 0;
@@ -203,15 +317,21 @@ int handle_key(char c) {
  * Draw
  */
 
-void draw(cairo_t *cr) {
+void draw_tag(cairo_t *c, char *id, struct tag *t) {
+	t->p(c,t->x,t->y);
+	if(id) {
+		cairo_move_to(c,t->x,t->y);
+		cairo_show_text(c,id);
+	}
+}
+
+void draw(cairo_t *c) {
 	int i;
 	for(i=0;i<tagn;i++) {
 		struct tag *t=&tag[i];
-		t->p(cr,t->x,t->y);
 		char buf[256];
 		snprintf(buf,sizeof(buf),"%u",i);
-		cairo_move_to(cr,t->x,t->y);
-		cairo_show_text(cr,buf);
+		draw_tag(c,buf,t);
 	}
 }
 
@@ -241,6 +361,7 @@ win_handle_events(win_t *win)
 
 	    win->width = cev->width;
 	    win->height = cev->height;
+	    recreate_overlay();
 	}
 	break;
 	case Expose:

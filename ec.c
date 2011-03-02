@@ -27,9 +27,17 @@ static void win_handle_events(win_t *win);
 
 win_t win;
 
+int addtag(int x,int y,int p);
+void addwire(int a, int ap, int b, int bp);
+
 int
 main(int argc, char *argv[])
 {
+
+    int a=addtag(1000,1000,0);
+    int b=addtag(3000,1500,0);
+
+    addwire(a,1,b,9);
 
     win.dpy = XOpenDisplay(0);
 
@@ -132,12 +140,46 @@ win_deinit(win_t *win)
  * Packages
  */
 
-void Pt8(cairo_t *c, int x, int y) {
+void Ptqfp32_pin(int p,int *x,int *y) {
+	if(p==0) {
+		*x=450;
+		*y=450;
+		return;
+	}
+
+	if(p<9) {
+		*x=850;
+		*y=140+80*(p-1)+37/2;
+		return;
+	}
+
+	if(p<17) {
+		*x=80*(7-(p-9))+140+37/2;
+		*y=850;
+		return;
+	}
+
+	if(p<25) {
+		*x=50;
+		*y=80*(7-(p-17))+140+37/2;
+		return;
+	}
+	if(p<33) {
+		*x=80*(p-25)+140+37/2;
+		*y=50;
+		return;
+	}
+}
+
+void Ptqfp32(cairo_t *c, int x, int y) {
 	cairo_save(c);
 
 	cairo_set_source_rgb(c,0,0,0);
 	cairo_rectangle(c,x+100,y+100,700,700);
 	cairo_stroke(c);
+
+	cairo_arc(c,x+800-30,y+140+37/2,20,0,2*M_PI);
+	cairo_fill(c);
 
 	cairo_set_source_rgba(c,0,0,0,0.5);
 	int i;
@@ -147,8 +189,23 @@ void Pt8(cairo_t *c, int x, int y) {
 	for(i=0;i<8;i++) { cairo_rectangle(c,x+80*i+140,y,37,100); cairo_fill(c); }
 	for(i=0;i<8;i++) { cairo_rectangle(c,x+80*i+140,y+800,37,100); cairo_fill(c); }
 
+	cairo_set_source_rgba(c,1,0,0,1);
+	for(i=0;i<=32;i++) {
+		int rx,ry;
+		Ptqfp32_pin(i,&rx,&ry);
+		
+		cairo_arc(c,x+rx,y+ry,20,0,2*M_PI);
+		cairo_fill(c);
+	}
+
 	cairo_restore(c);
 }
+
+struct package {
+	char name[16];
+	void (*draw)(cairo_t *,int,int);
+	void (*pin)(int,int*,int*);
+} package[1024] = {{"TQFP-32",Ptqfp32,Ptqfp32_pin}};
 
 /*
  * Data: tags
@@ -156,15 +213,15 @@ void Pt8(cairo_t *c, int x, int y) {
 
 struct tag {
 	int x,y; // 0.01mm units
-	void (*p)(cairo_t *,int,int);
-} tag[1024]={{1000,1000,Pt8},{2000,1500,Pt8}};
-int tagn=2;
+	struct package *p;
+} tag[1024];
+int tagn=0;
 
-void addtag(int x,int y) {
+int addtag(int x,int y,int p) {
 	tag[tagn].x=x;
 	tag[tagn].y=y;
-	tag[tagn].p=Pt8;
-	tagn++;
+	tag[tagn].p=package+p;
+	return tagn++;
 }
 
 
@@ -175,12 +232,14 @@ void addtag(int x,int y) {
 
 struct wire {
 	struct { int tag; int pin; } a,b;
-} wire[1024]={{{0,0},{1,0}}};
-int wiren=1;
+} wire[1024];
+int wiren=0;
 
-void addwire(int a, int b) {
+void addwire(int a, int ap, int b, int bp) {
 	wire[wiren].a.tag=a;
+	wire[wiren].a.pin=ap;
 	wire[wiren].b.tag=b;
+	wire[wiren].b.pin=bp;
 	wiren++;
 }
 
@@ -284,14 +343,14 @@ void Swire(char c) {
 		}
 		break;
 	case '-':
-		if(ps>=0) addwire(ps,ts);
+		if(ps>=0) addwire(ps,0,ts,0);
 		ps=ts; ts=0;
 		snprintf(buf,sizeof(buf),"%u - ",ps);
 		cairo_move_to(overlay,500,100);
 		cairo_show_text(overlay,buf);
 		break;
 	case '\r':
-		if(ps>=0) addwire(ps,ts);
+		if(ps>=0) addwire(ps,0,ts,0);
 	case 27:
 		Sidle(0); break;
 	case 0:
@@ -328,14 +387,14 @@ void Stag(char c) {
 		x+=sx*dx;
 		y+=sy*dy;
 
-		t.x=x; t.y=y; t.p=Pt8;
+		t.x=x; t.y=y; t.p=package;
 		draw_tag(overlay,0,&t);
 
 		grid_step(++step,&sx,&sy);
 		target_grid(x,y,sx,sy);
 		break;
 	case '\r':
-		addtag(x,y);
+		addtag(x,y,0);
 	case 27:
 		Sidle(0); break;
 	case 0:
@@ -386,7 +445,7 @@ int handle_key(char c) {
  */
 
 void draw_tag(cairo_t *c, char *id, struct tag *t) {
-	t->p(c,t->x,t->y);
+	t->p->draw(c,t->x,t->y);
 	if(id) {
 		cairo_move_to(c,t->x,t->y);
 		cairo_show_text(c,id);
@@ -396,10 +455,15 @@ void draw_tag(cairo_t *c, char *id, struct tag *t) {
 void draw_wire(cairo_t *c, struct wire *w) {
 	struct tag *a=tag+w->a.tag;
 	struct tag *b=tag+w->b.tag;
+
+	int ax,ay,bx,by;
+	a->p->pin(w->a.pin,&ax,&ay);
+	b->p->pin(w->b.pin,&bx,&by);
+
 	cairo_save(c);
 	cairo_set_line_width(c,30);
-	cairo_move_to(c,a->x,a->y);
-	cairo_line_to(c,b->x,b->y);
+	cairo_move_to(c,a->x+ax,a->y+ay);
+	cairo_line_to(c,b->x+bx,b->y+by);
 	cairo_stroke(c);
 	cairo_restore(c);
 }

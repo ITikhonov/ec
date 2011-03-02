@@ -317,12 +317,16 @@ void Swire(char c) {
 	cairo_move_to(overlay,100,100);
 	cairo_show_text(overlay,"WIRE");
 
-	static int ts=0, ps=-1;
+	static int ts=0, ps=-1, tspin=0, pspin=0, pine=0;
 
 	char buf[32];
 	switch(c) {
 	case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-		ts*=10; ts+=c-'0';
+		if(pine) {
+			tspin*=10; tspin+=c-'0';
+		} else {
+			ts*=10; ts+=c-'0';
+		}
 		if(ts<tagn) {
 			cairo_save(overlay);
 			cairo_set_source_rgba(overlay,1,0,0,0.8);
@@ -330,9 +334,9 @@ void Swire(char c) {
 			cairo_fill(overlay);
 
 			if(ps>=0) {
-				struct wire w={{ps,0},{ts,0}};
+				struct wire w={{ps,pspin},{ts,tspin}};
 				draw_wire(overlay,&w);
-				snprintf(buf,sizeof(buf),"%u - %u",ps,ts);
+				snprintf(buf,sizeof(buf),"%u/%u - %u",ps,pspin,ts);
 			} else {
 				snprintf(buf,sizeof(buf),"%u",ts);
 			}
@@ -342,19 +346,22 @@ void Swire(char c) {
 			cairo_restore(overlay);
 		}
 		break;
+	case '/':
+		pine=1;
+		break;
 	case '-':
-		if(ps>=0) addwire(ps,0,ts,0);
-		ps=ts; ts=0;
-		snprintf(buf,sizeof(buf),"%u - ",ps);
+		if(ps>=0) addwire(ps,pspin,ts,tspin);
+		ps=ts; pspin=tspin; ts=0; tspin=0; pine=0;
+		snprintf(buf,sizeof(buf),"%u/%u - ",ps,pspin);
 		cairo_move_to(overlay,500,100);
 		cairo_show_text(overlay,buf);
 		break;
 	case '\r':
-		if(ps>=0) addwire(ps,0,ts,0);
+		if(ps>=0) addwire(ps,pspin,ts,tspin);
 	case 27:
 		Sidle(0); break;
 	case 0:
-		ts=0; ps=-1;
+		ts=0; ps=-1; tspin=pspin=pine=0;
 		state=WIRE;
 	}
 	

@@ -150,6 +150,9 @@ int handle_key(char c) {
 	switch(c) {
 	case 'q': return 1;
 	case '\0': return 0;
+	case '\x08':
+		if(pcmd>cmd) *(--pcmd)=0;
+		break;
 	case '\r':
 	case ' ':
 		*pcmd=0;

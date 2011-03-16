@@ -3,3 +3,5 @@ LDLIBS=$(shell pkg-config --libs cairo)
 
 all: ec
 
+ec: ec.o commands.o draw.o
+

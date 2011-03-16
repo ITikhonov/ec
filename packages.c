@@ -38,26 +38,26 @@ static int tqfp_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
 	switch(side) {
 	case 0: // Left
 		*x=0;
-		*y=n*80;
+		*y=n*80+181;
 		*w=100;
 		*h=37;
 		return 1;
 	case 1: // Bottom
-		*x=n*80;
+		*x=(n-11)*80+181;
 		*y=1100;
 		*w=37;
 		*h=100;
 		return 1;
 	case 2: // Right
 		*x=1100;
-		*y=1100-n*80;
+		*y=1200-181-(n-22)*80;
 		*w=100;
-		*h=37;
+		*h=-37;
 		return 1;
 	case 3: // Top
-		*x=1100-n*80;
+		*x=1200-181-(n-33)*80;
 		*y=0;
-		*w=37;
+		*w=-37;
 		*h=100;
 		return 1;
 	}

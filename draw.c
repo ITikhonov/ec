@@ -9,7 +9,7 @@ void draw(cairo_t *c) {
 		if(!e) break;
 
 		int j,x,y,w,h;
-		for(j=0;pin_rect(e,j,&x,&y,&w,&h);j++) {
+		for(j=1;pin_rect(e,j,&x,&y,&w,&h);j++) {
 			cairo_rectangle(c,x/10.0,y/10.0,w/10.0,h/10.0);
 			cairo_fill(c);
 		}

@@ -19,6 +19,8 @@ struct element *element(unsigned int i) {
 
 int element_x(struct element *e) { return e->x; }
 int element_y(struct element *e) { return e->y; }
+char *element_name(struct element *e) { return e->name; }
+
 
 struct element *element_find(char *s) {
         int i;

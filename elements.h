@@ -9,4 +9,6 @@ void element_setx(struct element *,int);
 void element_sety(struct element *,int);
 void element_seta(struct element *,int);
 void element_setflip(struct element *,int);
+void element_set_package(struct element *,char *);
 
+int pin_rect(struct element *,int,int *x, int *y, int *w, int *h);

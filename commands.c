@@ -45,14 +45,18 @@ static void pos(char *s) {
 	if(f) { element_setflip(e,f=='f'); }
 }
 
+static void package(char *s) {
+	element_set_package(e,s);
+}
+
 
 void command(char *s) {
 	switch(*s) {
 	case 'A'...'Z': select_element(s); break;
 	case '@': pos(s+1); break;
+	case '#': package(s+1); break;
 	//case '.': pin(s+1); break;
 	//case '=': name(s+1); break;
-	//case '#': package(s+1); break;
 	//case '&': part(s+1); break;
 	}
 }

@@ -328,18 +328,28 @@ void Swire(char c) {
 			ts*=10; ts+=c-'0';
 		}
 		if(ts<tagn) {
-			cairo_save(overlay);
-			cairo_set_source_rgba(overlay,1,0,0,0.8);
-			cairo_rectangle(overlay,tag[ts].x,tag[ts].y,100,100);
-			cairo_fill(overlay);
+			int ax,ay;
 
 			if(ps>=0) {
 				struct wire w={{ps,pspin},{ts,tspin}};
 				draw_wire(overlay,&w);
 				snprintf(buf,sizeof(buf),"%u/%u - %u",ps,pspin,ts);
+			} else if(pine) {
+				snprintf(buf,sizeof(buf),"%u/%u",ts,tspin);
+				tag[ts].p->pin(tspin,&ax,&ay);
+				ax+=tag[ts].x;
+				ay+=tag[ts].y;
 			} else {
+				ax=tag[ts].x;
+				ay=tag[ts].y;
 				snprintf(buf,sizeof(buf),"%u",ts);
 			}
+
+			cairo_save(overlay);
+			cairo_set_source_rgba(overlay,1,0,0,0.8);
+			cairo_rectangle(overlay,ax,ay,100,100);
+			cairo_fill(overlay);
+
 			cairo_move_to(overlay,500,100);
 			cairo_show_text(overlay,buf);
 

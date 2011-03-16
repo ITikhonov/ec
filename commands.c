@@ -31,8 +31,9 @@
 
 static struct element *e=0;
 
-static void element(char *s) {
+static void select_element(char *s) {
 	e=element_find(s);
+	if(!e) e=element_create(s);
 }
 
 static void pos(char *s) {
@@ -47,7 +48,7 @@ static void pos(char *s) {
 
 void command(char *s) {
 	switch(*s) {
-	case 'A'...'Z': element(s); break;
+	case 'A'...'Z': select_element(s); break;
 	case '@': pos(s+1); break;
 	//case '.': pin(s+1); break;
 	//case '=': name(s+1); break;

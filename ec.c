@@ -7,6 +7,8 @@
 
 #include <X11/Xutil.h>
 
+#include "commands.h"
+
 extern void draw(cairo_t *cr);
 
 typedef struct win {
@@ -53,6 +55,8 @@ main(int argc, char *argv[])
 cairo_surface_t *overlay_s=0;
 cairo_t *overlay=0;
 
+char cmd[255],*pcmd=cmd;
+
 static void win_draw()
 {
     cairo_surface_t *surface;
@@ -70,6 +74,13 @@ static void win_draw()
     draw(cr);
     cairo_set_source_surface(cr,overlay_s,0,0);
     cairo_paint (cr);
+
+    cairo_set_source_rgb(cr,0,0,0);
+    cairo_move_to(cr,10,10);
+    *pcmd=0;
+    cairo_show_text(cr,cmd);
+    printf("%s\n",cmd);
+
 
     if (cairo_status (cr)) {
 	printf("Cairo is unhappy: %s\n",
@@ -133,7 +144,22 @@ void clear_overlay() {
 	cairo_set_source_rgb(overlay,0,0,0);
 }
 
+
 int handle_key(char c) {
+	printf("%x (%c)\n",c,c);
+	switch(c) {
+	case 'q': return 1;
+	case '\0': return 0;
+	case '\r':
+	case ' ':
+		*pcmd=0;
+		command(cmd);
+		*(pcmd=cmd)=0;
+		break;
+	default:
+		*pcmd++=c;
+	} 
+	win_draw();
 	return 0;
 }
 

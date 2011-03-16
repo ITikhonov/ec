@@ -37,6 +37,8 @@ static void select_element(char *s) {
 }
 
 static void pos(char *s) {
+	printf("pos %s\n",s);
+
 	char sx[8]={0},sy[8]={0},sa[8]={0},f=0;
 	sscanf(s,"%[^.].%[^.].%[^.].%c",sx,sy,sa,&f);
 	if(*sx) { element_setx(e,atoi(sx)); }
@@ -51,6 +53,7 @@ static void package(char *s) {
 
 
 void command(char *s) {
+	printf("command '%s'\n",s);
 	switch(*s) {
 	case 'A'...'Z': select_element(s); break;
 	case '@': pos(s+1); break;

@@ -122,6 +122,7 @@ win_init(win_t *win)
 
     XSelectInput(win->dpy, win->win,
 		 KeyPressMask
+		 |ButtonReleaseMask
 		 |StructureNotifyMask
 		 |ExposureMask);
 
@@ -144,6 +145,12 @@ void clear_overlay() {
 	cairo_set_source_rgb(overlay,0,0,0);
 }
 
+void handle_button(int x,int y,int button) {
+	char buf[1024];
+	sprintf(buf,"@%d0.%d0",x,y);
+	command(buf);
+	win_draw();
+}
 
 int handle_key(char c) {
 	printf("%x (%c)\n",c,c);
@@ -183,6 +190,12 @@ win_handle_events(win_t *win)
 
 	    XLookupString(kev,(char*)keybuf,sizeof(keybuf),NULL, &state);
 	    if(handle_key(keybuf[0])) return;
+	}
+	break;
+	case ButtonRelease:
+	{
+	    XButtonEvent *bev = &xev.xbutton;
+	    handle_button(bev->x,bev->y,bev->button);
 	}
 	break;
 	case ConfigureNotify:

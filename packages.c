@@ -18,6 +18,40 @@ static struct package *empty(char *args) {
 	return p;
 }
 
+
+/******************************************************
+ * Rectangular example: R.0805
+ ******************************************************
+ */
+
+struct rect {
+	struct package p;
+	int size;
+};
+
+static int rect_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
+	if(n>2 || n<1) return 0;
+	struct rect *p=(struct rect*)p0;
+
+	switch(p->size) {
+	case 805:
+		if(n==1) { *x=0; *y=0; *w=40; *h=125; }
+		else if(n==2) { *x=160; *y=0; *w=40; *h=125; }
+		break;
+	default:
+		return 0;
+	}
+
+	return 1;
+}
+
+static struct package *rect(char *args) {
+	struct rect *p=malloc(sizeof(struct rect));
+	p->p.pin_rect=rect_pin_rect;
+	p->size=atoi(args);
+	return (struct package*)p;
+}
+
 /******************************************************
  * TQFP
  ******************************************************
@@ -79,6 +113,8 @@ struct package *package(char *name) {
 		return empty(p+1);
 	} else if(len==4 && strncmp(name,"TQFP",4)==0) {
 		return tqfp(p+1);
+	} else if(len==1 && strncmp(name,"R",1)==0) {
+		return rect(p+1);
 	}
 	return 0;
 }

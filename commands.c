@@ -81,6 +81,12 @@ static void wiring() {
 	wp=spin;
 }
 
+static void save(char *s) {
+	FILE *f=fopen(s,"w");
+	elements_save(f);
+	fclose(f);
+}
+
 
 void command(char *s) {
 	printf("command '%s'\n",s);
@@ -90,6 +96,7 @@ void command(char *s) {
 	case '#': package(s+1); break;
 	case '.': pin(s+1); break;
 	case '-': wiring(); break;
+	case 's': save(s+1);
 	//case '=': name(s+1); break;
 	//case '&': part(s+1); break;
 	}

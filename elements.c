@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 
 #include "elements.h"
@@ -60,4 +61,11 @@ int pin_rect(struct element *e,int pin,int *x,int *y,int *w,int *h) {
 	return 1;
 }
 
+void elements_save(FILE *f) {
+        int i;
+	struct element *e;
+        for(i=0;(e=element(i));i++) {
+		fprintf(f,"E %s %d %d %d %d\n",e->name,e->x,e->y,e->a,e->f);
+	}
+}
 

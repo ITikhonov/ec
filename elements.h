@@ -14,3 +14,8 @@ void element_setflip(struct element *,int);
 void element_set_package(struct element *,char *);
 
 int pin_rect(struct element *,int,int *x, int *y, int *w, int *h);
+
+#include <stdio.h>
+
+void elements_save(FILE *);
+

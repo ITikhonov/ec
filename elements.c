@@ -65,7 +65,9 @@ void elements_save(FILE *f) {
         int i;
 	struct element *e;
         for(i=0;(e=element(i));i++) {
-		fprintf(f,"E %s %d %d %d %d\n",e->name,e->x,e->y,e->a,e->f);
+		char p[32];
+		package_name(e->p,p);
+		fprintf(f,"E %s %d %d %d %d %s\n",e->name,e->x,e->y,e->a,e->f,p);
 	}
 }
 

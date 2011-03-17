@@ -4,8 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "packages.h"
+
 struct package {
 	int (*pin_rect)(struct package *,int,int *x, int *y, int *w, int *h);
+	void (*name)(struct package *,char name[32]);
 };
 
 static int empty_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
@@ -29,6 +32,11 @@ struct rect {
 	int size;
 };
 
+static void rect_name(struct package *p0, char name[32]) {
+	struct rect *p=(struct rect*)p0;
+	snprintf(name,32,"R.%u",p->size);
+}
+
 static int rect_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
 	if(n>2 || n<1) return 0;
 	struct rect *p=(struct rect*)p0;
@@ -48,6 +56,7 @@ static int rect_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
 static struct package *rect(char *args) {
 	struct rect *p=malloc(sizeof(struct rect));
 	p->p.pin_rect=rect_pin_rect;
+	p->p.name=rect_name;
 	p->size=atoi(args);
 	return (struct package*)p;
 }
@@ -61,6 +70,11 @@ struct tqfp {
 	struct package p;
 	int pins;
 };
+
+static void tqfp_name(struct package *p0, char name[32]) {
+	struct tqfp *p=(struct tqfp*)p0;
+	snprintf(name,32,"TQFP.%u",p->pins);
+}
 
 static int tqfp_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
 	struct tqfp *p=(struct tqfp*)p0;
@@ -101,6 +115,7 @@ static int tqfp_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
 static struct package *tqfp(char *args) {
 	struct tqfp *p=malloc(sizeof(struct tqfp));
 	p->p.pin_rect=tqfp_pin_rect;
+	p->p.name=tqfp_name;
 	p->pins=atoi(args);
 	return (struct package*)p;
 }
@@ -117,6 +132,10 @@ struct package *package(char *name) {
 		return rect(p+1);
 	}
 	return 0;
+}
+
+void package_name(struct package *p, char name[32]) {
+	p->name(p,name);
 }
 
 int package_pin_rect(struct package *p,int n,int *x, int *y, int *w, int *h) {

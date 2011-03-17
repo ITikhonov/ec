@@ -76,7 +76,7 @@ static void pin(char *s) {
 }
 
 
-static void wire() {
+static void wiring() {
 	we=e;
 	wp=spin;
 }
@@ -89,7 +89,7 @@ void command(char *s) {
 	case '@': pos(s+1); break;
 	case '#': package(s+1); break;
 	case '.': pin(s+1); break;
-	case '-': wire(); break;
+	case '-': wiring(); break;
 	//case '=': name(s+1); break;
 	//case '&': part(s+1); break;
 	}

@@ -29,6 +29,11 @@
 
 #include "commands.h"
 #include "elements.h"
+#include "wires.h"
+
+static struct element *we=0;
+static int wp=-1;
+
 
 static struct element *e=0;
 static int spin=-1;
@@ -43,6 +48,7 @@ static void select_element(char *s) {
 	if(!e) e=element_create(s);
 	spin=-1;
 }
+
 
 static void pos(char *s) {
 	printf("pos %s\n",s);
@@ -63,6 +69,16 @@ static void pin(char *s) {
 	spin=atoi(s);
 	int t;
 	if(!pin_rect(e,spin,&t,&t,&t,&t)) spin=-1;
+	else if(we&&wp!=-1) {
+		make_wire(we,wp,e,spin);
+		we=e; wp=spin;
+	}
+}
+
+
+static void wire() {
+	we=e;
+	wp=spin;
 }
 
 
@@ -73,6 +89,7 @@ void command(char *s) {
 	case '@': pos(s+1); break;
 	case '#': package(s+1); break;
 	case '.': pin(s+1); break;
+	case '-': wire(); break;
 	//case '=': name(s+1); break;
 	//case '&': part(s+1); break;
 	}

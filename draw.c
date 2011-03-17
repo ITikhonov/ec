@@ -2,6 +2,7 @@
 
 #include "elements.h"
 #include "commands.h"
+#include "wires.h"
 
 void draw(cairo_t *c) {
 	int i;
@@ -27,6 +28,24 @@ void draw(cairo_t *c) {
 			cairo_fill(c);
 
 		}
+	}
+
+	struct wire *w;
+	for(i=0;(w=wire(i));i++) {
+		int x0,y0,w0,h0,x1,y1,p;
+
+		struct element *e=wire_a(w,&p);
+		if(!pin_rect(e,p,&x0,&y0,&w0,&h0)) continue;
+		x0+=w0/2; y0+=h0/2;
+
+		e=wire_b(w,&p);
+		if(!pin_rect(e,p,&x1,&y1,&w0,&h0)) continue;
+		x1+=w0/2; y1+=h0/2;
+
+		cairo_move_to(c,x0/10.0,y0/10.0);
+		cairo_line_to(c,x1/10.0,y1/10.0);
+		cairo_stroke(c);
+
 	}
 }
 

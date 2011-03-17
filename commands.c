@@ -27,13 +27,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "commands.h"
 #include "elements.h"
 
 static struct element *e=0;
+static int spin=-1;
+
+struct element *selected(int *p) {
+	*p=spin;
+	return e;
+}
 
 static void select_element(char *s) {
 	e=element_find(s);
 	if(!e) e=element_create(s);
+	spin=-1;
 }
 
 static void pos(char *s) {
@@ -51,6 +59,12 @@ static void package(char *s) {
 	element_set_package(e,s);
 }
 
+static void pin(char *s) {
+	spin=atoi(s);
+	int t;
+	if(!pin_rect(e,spin,&t,&t,&t,&t)) spin=-1;
+}
+
 
 void command(char *s) {
 	printf("command '%s'\n",s);
@@ -58,7 +72,7 @@ void command(char *s) {
 	case 'A'...'Z': select_element(s); break;
 	case '@': pos(s+1); break;
 	case '#': package(s+1); break;
-	//case '.': pin(s+1); break;
+	case '.': pin(s+1); break;
 	//case '=': name(s+1); break;
 	//case '&': part(s+1); break;
 	}

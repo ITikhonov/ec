@@ -94,7 +94,7 @@ static void load(char *s) {
 }
 
 
-void command(char *s) {
+int command(char *s) {
 	printf("command '%s'\n",s);
 	switch(*s) {
 	case 'A'...'Z': select_element(s); break;
@@ -104,8 +104,10 @@ void command(char *s) {
 	case '-': wiring(); break;
 	case 's': save(s+1);
 	case 'l': load(s+1);
+	case 'q': return 1;
 	//case '=': name(s+1); break;
 	//case '&': part(s+1); break;
 	}
+	return 0;
 }
 

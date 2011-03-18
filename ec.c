@@ -155,7 +155,6 @@ void handle_button(int x,int y,int button) {
 int handle_key(char c) {
 	printf("%x (%c)\n",c,c);
 	switch(c) {
-	case 'q': return 1;
 	case '\0': return 0;
 	case '\x08':
 		if(pcmd>cmd) *(--pcmd)=0;
@@ -163,7 +162,7 @@ int handle_key(char c) {
 	case '\r':
 	case ' ':
 		*pcmd=0;
-		command(cmd);
+		if(command(cmd)) return 1;
 		*(pcmd=cmd)=0;
 		break;
 	default:

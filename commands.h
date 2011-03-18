@@ -1,2 +1,2 @@
-void command(char *s);
+int command(char *s);
 struct element *selected(int *pin);

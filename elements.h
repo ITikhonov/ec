@@ -18,4 +18,5 @@ int pin_rect(struct element *,int,int *x, int *y, int *w, int *h);
 #include <stdio.h>
 
 void elements_save(FILE *);
+void elements_load(FILE *);
 

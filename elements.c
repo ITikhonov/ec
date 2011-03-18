@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 
@@ -68,6 +69,24 @@ void elements_save(FILE *f) {
 		char p[32];
 		package_name(e->p,p);
 		fprintf(f,"E %s %d %d %d %d %s\n",e->name,e->x,e->y,e->a,e->f,p);
+	}
+	fprintf(f,"\n");
+}
+
+void elements_load(FILE *f) {
+	elements_n=0;
+	for(;;) {
+		int c=fgetc(f);
+		if(c=='E') {
+			char name[32];
+			int x,y,a,fl;
+			char pn[32];
+			fscanf(f," %31s %d %d %d %d %31s\n",name,&x,&y,&a,&fl,pn);
+			struct element *e=element_create(name);
+			e->x=x; e->y=y; e->a=a; e->f=fl;
+			if(e->p) free(e->p);
+			e->p=package(pn);
+		} else break;
 	}
 }
 

@@ -46,6 +46,26 @@ int wire_corner(struct wire *w,int i,int *x,int *y) {
 	return 1;
 }
 
+struct wire *pick_wire_corner(int x,int y,int *no,int nth) {
+	int i;
+	for(i=0;i<wiren;i++) {
+		struct corner *c=wires[i].corners;
+		int j;
+		for(j=0;j<wires[i].cn;j++) {
+			int dx=c->x-x;
+			int dy=c->y-y;
+			if(dx*dx+dy*dy<250) {
+				if(--nth==0) {
+					*no=j;
+					return &wires[i];
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+
 struct wire *wire(unsigned int i) {
 	if(i<wiren) return wires+i;
 	return 0;
@@ -78,4 +98,6 @@ void wires_load(FILE *f) {
 
 
 }
+
+
 

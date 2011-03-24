@@ -37,12 +37,17 @@ void draw(cairo_t *c) {
 		struct element *e=wire_a(w,&p);
 		if(!pin_rect(e,p,&x0,&y0,&w0,&h0)) continue;
 		x0+=w0/2; y0+=h0/2;
+		cairo_move_to(c,x0/10.0,y0/10.0);
+
+		int j,x,y;
+		for(j=0;wire_corner(w,j,&x,&y);j++) {
+			cairo_line_to(c,x/10.0,y/10.0);
+		}
+
 
 		e=wire_b(w,&p);
 		if(!pin_rect(e,p,&x1,&y1,&w0,&h0)) continue;
 		x1+=w0/2; y1+=h0/2;
-
-		cairo_move_to(c,x0/10.0,y0/10.0);
 		cairo_line_to(c,x1/10.0,y1/10.0);
 		cairo_stroke(c);
 

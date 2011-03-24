@@ -90,6 +90,7 @@ static void save(char *s) {
 static void load(char *s) {
 	FILE *f=fopen(s,"r");
 	elements_load(f);
+	wires_load(f);
 	fclose(f);
 }
 

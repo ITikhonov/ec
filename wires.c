@@ -39,6 +39,13 @@ struct corner *wire_add_corner(struct wire *w,int segmentno,int x,int y) {
 	return &w->corners[segmentno];
 }
 
+int wire_corner(struct wire *w,int i,int *x,int *y) {
+	if(w->cn<=i) return 0;
+	*x=w->corners[i].x;
+	*y=w->corners[i].y;
+	return 1;
+}
+
 struct wire *wire(unsigned int i) {
 	if(i<wiren) return wires+i;
 	return 0;
@@ -47,7 +54,7 @@ struct wire *wire(unsigned int i) {
 struct element *wire_a(struct wire *w,int *p) { *p=w->ap; return w->a; }
 struct element *wire_b(struct wire *w,int *p) { *p=w->bp; return w->b; }
 
-void load_wires(FILE *f) {
+void wires_load(FILE *f) {
 	int i;
 	for(i=0;i<wiren;i++) { free(wires[i].corners); }
 	wiren=0;

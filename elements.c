@@ -70,13 +70,14 @@ void elements_save(FILE *f) {
 		package_name(e->p,p);
 		fprintf(f,"E %s %d %d %d %d %s\n",e->name,e->x,e->y,e->a,e->f,p);
 	}
-	fprintf(f,"\n");
+	fprintf(f,".\n");
 }
 
 void elements_load(FILE *f) {
 	elements_n=0;
 	for(;;) {
 		int c=fgetc(f);
+		printf("EL: %c\n",c);
 		if(c=='E') {
 			char name[32];
 			int x,y,a,fl;
@@ -86,7 +87,7 @@ void elements_load(FILE *f) {
 			e->x=x; e->y=y; e->a=a; e->f=fl;
 			if(e->p) free(e->p);
 			e->p=package(pn);
-		} else break;
+		} else { fgetc(f); break; }
 	}
 }
 

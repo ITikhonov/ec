@@ -30,6 +30,8 @@ void draw(cairo_t *c) {
 		}
 	}
 
+	int sc;
+	struct wire *sw=selected_wire_corner(&sc);
 	struct wire *w;
 	for(i=0;(w=wire(i));i++) {
 		int x0,y0,w0,h0,x1,y1,p;
@@ -42,6 +44,10 @@ void draw(cairo_t *c) {
 		int j,x,y;
 		for(j=0;wire_corner(w,j,&x,&y);j++) {
 			cairo_line_to(c,x/10.0,y/10.0);
+			if(w==sw && sc==j) {
+				cairo_rectangle(c,x/10.0-5,y/10.0-5,10,10);
+				cairo_move_to(c,x/10.0,y/10.0);
+			}
 		}
 
 

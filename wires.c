@@ -52,10 +52,11 @@ struct wire *pick_wire_corner(int x,int y,int *no,int nth) {
 		struct corner *c=wires[i].corners;
 		int j;
 		for(j=0;j<wires[i].cn;j++) {
-			int dx=c->x-x;
-			int dy=c->y-y;
-			if(dx*dx+dy*dy<250) {
-				if(--nth==0) {
+			int dx=c[j].x-x;
+			int dy=c[j].y-y;
+			int d=dx*dx+dy*dy;
+			if(d<2500) {
+				if(--nth<=0) {
 					*no=j;
 					return &wires[i];
 				}

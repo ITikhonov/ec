@@ -38,9 +38,18 @@ static int wp=-1;
 static struct element *e=0;
 static int spin=-1;
 
+static struct wire *w;
+static int wc=-1;
+static int wnth=0;
+
 struct element *selected(int *p) {
 	*p=spin;
 	return e;
+}
+
+struct wire *selected_wire_corner(int *n) {
+	*n=wc;
+	return w;
 }
 
 static void select_element(char *s) {
@@ -51,14 +60,21 @@ static void select_element(char *s) {
 
 
 static void pos(char *s) {
-	printf("pos %s\n",s);
-
 	char sx[8]={0},sy[8]={0},sa[8]={0},f=0;
 	sscanf(s,"%[^.].%[^.].%[^.].%c",sx,sy,sa,&f);
-	if(*sx) { element_setx(e,atoi(sx)); }
-	if(*sy) { element_sety(e,atoi(sy)); }
-	if(*sa) { element_seta(e,atoi(sa)); }
-	if(f) { element_setflip(e,f=='f'); }
+
+	if(e) {
+		if(*sx) { element_setx(e,atoi(sx)); }
+		if(*sy) { element_sety(e,atoi(sy)); }
+		if(*sa) { element_seta(e,atoi(sa)); }
+		if(f) { element_setflip(e,f=='f'); }
+	} else {
+		w=pick_wire_corner(atoi(sx),atoi(sy),&wc,wnth++);
+		if(w==0) {
+			wnth=0;
+			w=pick_wire_corner(atoi(sx),atoi(sy),&wc,wnth++);
+		}
+	}
 }
 
 static void package(char *s) {
@@ -94,6 +110,10 @@ static void load(char *s) {
 	fclose(f);
 }
 
+static void wireadjust() {
+	e=0; we=0;
+}
+
 
 int command(char *s) {
 	printf("command '%s'\n",s);
@@ -103,6 +123,7 @@ int command(char *s) {
 	case '#': package(s+1); break;
 	case '.': pin(s+1); break;
 	case '-': wiring(); break;
+	case 'w': wireadjust(); break;
 	case 's': save(s+1); break;
 	case 'l': load(s+1); break;
 	case 'q': return 1;

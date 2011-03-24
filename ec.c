@@ -147,7 +147,8 @@ void clear_overlay() {
 
 void handle_button(int x,int y,int button) {
 	char buf[1024];
-	sprintf(buf,"@%d0.%d0",x,y);
+	char c=(button==Button1)?'@':'!';
+	sprintf(buf,"%c%d0.%d0",c,x,y);
 	command(buf);
 	win_draw();
 }

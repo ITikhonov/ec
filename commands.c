@@ -97,6 +97,8 @@ static void wiring() {
 	wp=spin;
 }
 
+
+
 static void save(char *s) {
 	FILE *f=fopen(s,"w");
 	elements_save(f);
@@ -114,12 +116,21 @@ static void wireadjust() {
 	e=0; we=0;
 }
 
+static void move(char *s) {
+	int x,y;
+	sscanf(s,"%d.%d",&x,&y);
+	if(w && wc>=0) {
+		wire_corner_move(w,wc,x,y);
+	}
+}
+
 
 int command(char *s) {
 	printf("command '%s'\n",s);
 	switch(*s) {
 	case 'A'...'Z': select_element(s); break;
 	case '@': pos(s+1); break;
+	case '!': move(s+1); break;
 	case '#': package(s+1); break;
 	case '.': pin(s+1); break;
 	case '-': wiring(); break;

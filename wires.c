@@ -17,6 +17,12 @@ struct wire {
 
 int wiren=0;
 
+void wire_corner_move(struct wire *w,int n,int x,int y) {
+	w->corners[n].x=x;
+	w->corners[n].y=y;
+}
+
+
 struct wire *make_wire(struct element *a,int ap,struct element *b,int bp) {
 	struct wire *w=wires+wiren++;
 	w->a=a; w->ap=ap;

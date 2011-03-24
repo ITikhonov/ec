@@ -102,8 +102,8 @@ int command(char *s) {
 	case '#': package(s+1); break;
 	case '.': pin(s+1); break;
 	case '-': wiring(); break;
-	case 's': save(s+1);
-	case 'l': load(s+1);
+	case 's': save(s+1); break;
+	case 'l': load(s+1); break;
 	case 'q': return 1;
 	//case '=': name(s+1); break;
 	//case '&': part(s+1); break;

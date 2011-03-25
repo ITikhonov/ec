@@ -18,8 +18,10 @@ struct wire {
 int wiren=0;
 
 void wire_corner_move(struct wire *w,int n,int x,int y) {
-	w->corners[n].x=x;
-	w->corners[n].y=y;
+	if(n==0) return;
+	if(n>w->cn) return;
+	w->corners[n-1].x=x;
+	w->corners[n-1].y=y;
 }
 
 
@@ -32,36 +34,46 @@ struct wire *make_wire(struct element *a,int ap,struct element *b,int bp) {
 	return w;
 }
 
-struct corner *wire_add_corner(struct wire *w,int segmentno,int x,int y) {
+struct corner *wire_add_corner(struct wire *w,int after,int x,int y) {
 	int cn=w->cn++;
 	w->corners=realloc(w->corners,w->cn*sizeof(struct corner));
 
 	int i;
-	for(i=segmentno;i<cn;i++) {
-		w->corners[i+1]=w->corners[i];
+	for(i=cn;i>after;i++) {
+		w->corners[i]=w->corners[i-1];
 	}
-	w->corners[segmentno].x=x;
-	w->corners[segmentno].y=y;
-	return &w->corners[segmentno];
+	w->corners[after].x=x;
+	w->corners[after].y=y;
+	return &w->corners[after];
 }
 
-int wire_corner(struct wire *w,int i,int *x,int *y) {
-	if(w->cn<=i) return 0;
-	*x=w->corners[i].x;
-	*y=w->corners[i].y;
+int wire_corner(struct wire *w,unsigned int i,int *x,int *y) {
+	if(i==0) {
+		int w0,h0;
+		pin_rect(w->a,w->ap,x,y,&w0,&h0);
+                *x+=w0/2; *y+=h0/2;
+	} else if(i==w->cn+1) {
+		int w0,h0;
+		pin_rect(w->b,w->bp,x,y,&w0,&h0);
+                *x+=w0/2; *y+=h0/2;
+	} else if(i<=w->cn) {
+		*x=w->corners[i-1].x;
+		*y=w->corners[i-1].y;
+	} else {
+		return 0;
+	}
 	return 1;
 }
 
 struct wire *pick_wire_corner(int x,int y,int *no,int nth) {
 	int i;
 	for(i=0;i<wiren;i++) {
-		struct corner *c=wires[i].corners;
-		int j;
-		for(j=0;j<wires[i].cn;j++) {
-			int dx=c[j].x-x;
-			int dy=c[j].y-y;
+		int j,cx,cy;
+		for(j=0;wire_corner(&wires[i],j,&cx,&cy);j++) {
+			int dx=cx-x;
+			int dy=cy-y;
 			int d=dx*dx+dy*dy;
-			if(d<2500) {
+			if(d<5000) {
 				if(--nth<=0) {
 					*no=j;
 					return &wires[i];
@@ -69,6 +81,7 @@ struct wire *pick_wire_corner(int x,int y,int *no,int nth) {
 			}
 		}
 	}
+
 	return 0;
 }
 

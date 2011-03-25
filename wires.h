@@ -17,4 +17,5 @@ int wire_corner(struct wire *,unsigned int,int*x,int*y);
 #include <stdio.h>
 
 void wires_load(FILE *);
+void wires_save(FILE *);
 

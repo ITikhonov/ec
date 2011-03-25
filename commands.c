@@ -102,6 +102,7 @@ static void wiring() {
 static void save(char *s) {
 	FILE *f=fopen(s,"w");
 	elements_save(f);
+	wires_save(f);
 	fclose(f);
 }
 

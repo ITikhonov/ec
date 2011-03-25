@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "wires.h"
@@ -121,5 +122,17 @@ void wires_load(FILE *f) {
 
 }
 
+void wires_save(FILE *f) {
+	int i;
+	for(i=0;i<wiren;i++) {
+		struct wire *w=wires+i;
+		fprintf(f,"W %s %d %s %d\n",element_name(w->a),w->ap,element_name(w->b),w->bp);
 
+		int j;
+		for(j=0;j<w->cn;j++) {
+			fprintf(f,"C %d %d\n",w->corners[j].x,w->corners[j].y);
+		}
+	}
+	fprintf(f,".\n");
+}
 

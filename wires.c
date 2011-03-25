@@ -34,17 +34,19 @@ struct wire *make_wire(struct element *a,int ap,struct element *b,int bp) {
 	return w;
 }
 
-struct corner *wire_add_corner(struct wire *w,int after,int x,int y) {
+int wire_add_corner(struct wire *w,int after,int x,int y) {
 	int cn=w->cn++;
 	w->corners=realloc(w->corners,w->cn*sizeof(struct corner));
 
+	if(after==w->cn) after--;
+
 	int i;
-	for(i=cn;i>after;i++) {
+	for(i=cn;i>after;i--) {
 		w->corners[i]=w->corners[i-1];
 	}
 	w->corners[after].x=x;
 	w->corners[after].y=y;
-	return &w->corners[after];
+	return after+1;
 }
 
 int wire_corner(struct wire *w,unsigned int i,int *x,int *y) {

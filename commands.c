@@ -124,10 +124,26 @@ static void move(char *s) {
 	}
 }
 
+static void add() {
+	if(w) {
+		int x,y,x1,y1;
+		if(wire_corner(w,wc,&x,&y)) {
+			if(!wire_corner(w,wc+1,&x1,&y1)) {
+				wire_corner(w,wc-1,&x1,&y1);
+			}
+			x=(x+x1)/2;
+			y=(y+y1)/2;
+
+			wc=wire_add_corner(w,wc,x,y);
+		}
+	}
+}
+
 
 int command(char *s) {
 	printf("command '%s'\n",s);
 	switch(*s) {
+	case '\0': add(); break;
 	case 'A'...'Z': select_element(s); break;
 	case '@': pos(s+1); break;
 	case '!': move(s+1); break;

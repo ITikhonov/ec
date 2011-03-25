@@ -9,15 +9,21 @@
 struct package {
 	int (*pin_rect)(struct package *,int,int *x, int *y, int *w, int *h);
 	void (*name)(struct package *,char name[32]);
+	int (*line)(struct package *,unsigned int,int *x0,int *y0);
 };
 
 static int empty_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
 	return 0;
 }
 
+static int empty_line(struct package *p,unsigned int n,int *x0,int *y0) {
+	return 0;
+}
+
 static struct package *empty(char *args) {
 	struct package *p=malloc(sizeof(struct package));
 	p->pin_rect=empty_pin_rect;
+	p->line=empty_line;
 	return p;
 }
 
@@ -53,10 +59,21 @@ static int rect_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
 	return 1;
 }
 
+static int rect_line(struct package *p,unsigned int n,int *x,int *y) {
+	switch(n) {
+	case 0: *x=40; *y=0; return PL_MOVE;
+	case 1: *x=160; *y=0; return PL_LINE;
+	case 2: *x=40; *y=125; return PL_MOVE;
+	case 3: *x=160; *y=125; return PL_LINE;
+	default: return PL_END;
+	}
+}
+
 static struct package *rect(char *args) {
 	struct rect *p=malloc(sizeof(struct rect));
 	p->p.pin_rect=rect_pin_rect;
 	p->p.name=rect_name;
+	p->p.line=rect_line;
 	p->size=atoi(args);
 	return (struct package*)p;
 }
@@ -112,13 +129,29 @@ static int tqfp_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
 	return 0;
 }
 
+static int tqfp_line(struct package *p,unsigned int n,int *x,int *y) {
+	switch(n) {
+	case 0: *x=100; *y=100; return PL_MOVE;
+	case 1: *x=1100; *y=100; return PL_LINE;
+	case 2: *x=1100; *y=1100; return PL_LINE;
+	case 3: *x=100; *y=1100; return PL_LINE;
+	case 4: return PL_CLOSE;
+	case 5: *x=120; *y=181+18; return PL_MOVE;
+	case 6: *x=150; *y=181+18; return PL_LINE;
+	default: return PL_END;
+	}
+}
+
 static struct package *tqfp(char *args) {
 	struct tqfp *p=malloc(sizeof(struct tqfp));
 	p->p.pin_rect=tqfp_pin_rect;
 	p->p.name=tqfp_name;
+	p->p.line=tqfp_line;
 	p->pins=atoi(args);
 	return (struct package*)p;
 }
+
+// ----------------------------------------------------------------------------------
 
 struct package *package(char *name) {
 	char *p=strchrnul(name,'.');
@@ -140,5 +173,9 @@ void package_name(struct package *p, char name[32]) {
 
 int package_pin_rect(struct package *p,int n,int *x, int *y, int *w, int *h) {
 	return p->pin_rect(p,n,x,y,w,h);
+}
+
+int package_line(struct package *p,unsigned int n,int *x0,int *y0) {
+	return p->line(p,n,x0,y0);
 }
 

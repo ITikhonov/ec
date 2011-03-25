@@ -62,6 +62,14 @@ int pin_rect(struct element *e,int pin,int *x,int *y,int *w,int *h) {
 	return 1;
 }
 
+int body_line(struct element *e,unsigned int n,int *x0,int *y0) {
+	int r=package_line(e->p,n,x0,y0);
+	*x0+=e->x;
+	*y0+=e->y;
+	return r;
+}
+
+
 void elements_save(FILE *f) {
         int i;
 	struct element *e;

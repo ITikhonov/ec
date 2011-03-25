@@ -1,5 +1,6 @@
 #include <cairo.h>
 
+#include "packages.h"
 #include "elements.h"
 #include "commands.h"
 #include "wires.h"
@@ -25,9 +26,22 @@ void draw(cairo_t *c) {
 				 else { cairo_set_source_rgb(c,0,0,0); }
 			}
 			cairo_rectangle(c,x/10.0,y/10.0,w/10.0,h/10.0);
-			cairo_fill(c);
-
+			cairo_fill_preserve(c);
+			cairo_stroke(c);
 		}
+
+		for(j=0;;j++) {
+			int r;
+			switch((r=body_line(e,j,&x,&y))) {
+			case PL_MOVE: cairo_move_to(c,x/10.0,y/10.0); break;
+			case PL_LINE: cairo_line_to(c,x/10.0,y/10.0); break;
+			case PL_CLOSE: cairo_close_path(c); break;
+			default: goto end;
+			}
+			printf("line %u %d %d\n",r,x,y);
+		}
+		end: cairo_stroke(c);
+
 	}
 
 	cairo_save(c);

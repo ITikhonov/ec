@@ -67,13 +67,21 @@ static void win_draw()
 
     surface=cairo_xlib_surface_create(win.dpy, win.win, visual,
 					 win.width, win.height);
-    cr = cairo_create(surface);
+
+
+    cairo_surface_t *buf=cairo_image_surface_create(CAIRO_FORMAT_RGB24,win.width,win.height);
+
+    cr = cairo_create(buf);
+    cairo_set_source_rgb(cr,1,1,1);
+    cairo_paint(cr);
+
     cairo_set_source_rgb(cr,0,0,0);
     cairo_set_font_size (cr,10);
 
     draw(cr);
-    cairo_set_source_surface(cr,overlay_s,0,0);
-    cairo_paint (cr);
+
+    //cairo_set_source_surface(cr,overlay_s,0,0);
+    //cairo_paint (cr);
 
     cairo_set_source_rgb(cr,0,0,0);
     cairo_move_to(cr,10,10);
@@ -82,6 +90,13 @@ static void win_draw()
     printf("%s\n",cmd);
 
 
+    cairo_destroy(cr);
+    cairo_surface_flush(buf);
+
+    cr = cairo_create(surface);
+    cairo_set_source_surface(cr,buf,0,0);
+    cairo_paint(cr);
+
     if (cairo_status (cr)) {
 	printf("Cairo is unhappy: %s\n",
 	       cairo_status_to_string (cairo_status (cr)));
@@ -89,6 +104,7 @@ static void win_draw()
     }
 
     cairo_destroy(cr);
+    cairo_surface_destroy (buf);
     cairo_surface_destroy (surface);
     XFlush(win.dpy);
 }

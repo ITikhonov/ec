@@ -1,4 +1,5 @@
 #include <cairo.h>
+#include <cairo-xlib.h>
 
 #include "packages.h"
 #include "elements.h"
@@ -7,6 +8,18 @@
 
 void draw(cairo_t *c) {
 	int i;
+
+	{ cairo_save(c);
+		cairo_set_source_rgb(c,0.8,0.8,0.8);
+		cairo_set_line_width(c,1);
+
+		int w=cairo_image_surface_get_width (cairo_get_target(c));
+		int h=cairo_image_surface_get_width (cairo_get_target(c));
+		for(i=0;i<w;i+=10) { cairo_move_to(c,i,0); cairo_line_to(c,i,h); }
+		for(i=0;i<h;i+=10) { cairo_move_to(c,0,i); cairo_line_to(c,w,i); }
+		cairo_stroke(c);
+	cairo_restore(c); }
+
 	int spin;
 	struct element *se=selected(&spin);
 

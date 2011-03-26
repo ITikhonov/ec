@@ -63,8 +63,6 @@ static void win_draw()
     cairo_t *cr;
     Visual *visual = DefaultVisual(win.dpy, DefaultScreen (win.dpy));
 
-    XClearWindow(win.dpy, win.win);
-
     surface=cairo_xlib_surface_create(win.dpy, win.win, visual,
 					 win.width, win.height);
 

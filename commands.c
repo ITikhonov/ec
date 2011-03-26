@@ -58,21 +58,32 @@ static void select_element(char *s) {
 	spin=-1;
 }
 
+enum {HAS_X=1,HAS_Y=2,HAS_A=4,HAS_F=8};
+
+static int convert_at(char *s,int*x,int*y,int*a,int*f) {
+	char *p;
+	int r=0;
+	*x=strtol(s,&p,10); if(s!=p) r|=HAS_X; if(*p==0) return r; s=p+1;
+	*y=strtol(s,&p,10); if(s!=p) r|=HAS_Y; if(*p==0) return r; s=p+1;
+	*a=strtol(s,&p,10); if(s!=p) r|=HAS_A; if(*p==0) return r; s=p+1;
+	*f=strtol(s,&p,10); if(s!=p) r|=HAS_F; return r;
+}
+
 
 static void pos(char *s) {
-	char sx[8]={0},sy[8]={0},sa[8]={0},f=0;
-	sscanf(s,"%[^.].%[^.].%[^.].%c",sx,sy,sa,&f);
+	int r,x,y,a,f;
+	r=convert_at(s,&x,&y,&a,&f);
 
 	if(e) {
-		if(*sx) { element_setx(e,atoi(sx)); }
-		if(*sy) { element_sety(e,atoi(sy)); }
-		if(*sa) { element_seta(e,atoi(sa)); }
-		if(f) { element_setflip(e,f=='f'); }
+		if(r&HAS_X) { element_setx(e,x); }
+		if(r&HAS_Y) { element_sety(e,y); }
+		if(r&HAS_A) { element_seta(e,a); }
+		if(r&HAS_F) { element_setflip(e,f); }
 	} else {
-		w=pick_wire_corner(atoi(sx),atoi(sy),&wc,wnth++);
+		w=pick_wire_corner(x,y,&wc,wnth++);
 		if(w==0) {
 			wnth=0;
-			w=pick_wire_corner(atoi(sx),atoi(sy),&wc,wnth++);
+			w=pick_wire_corner(x,y,&wc,wnth++);
 		}
 	}
 }

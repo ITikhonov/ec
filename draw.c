@@ -39,7 +39,7 @@ void draw(cairo_t *c) {
 				 else { cairo_set_source_rgb(c,0,0,0); }
 			}
 			cairo_rectangle(c,x/10.0,y/10.0,w/10.0,h/10.0);
-			cairo_fill_preserve(c);
+			if(!element_f(e)) { cairo_fill_preserve(c); }
 			cairo_stroke(c);
 		}
 

@@ -21,6 +21,7 @@ struct element *element(unsigned int i) {
 
 int element_x(struct element *e) { return e->x; }
 int element_y(struct element *e) { return e->y; }
+int element_f(struct element *e) { return e->f; }
 char *element_name(struct element *e) { return e->name; }
 
 
@@ -57,15 +58,17 @@ void element_set_package(struct element *e,char *s) {
 
 int pin_rect(struct element *e,int pin,int *x,int *y,int *w,int *h) {
 	if(!package_pin_rect(e->p,pin,x,y,w,h)) return 0;
+	if(e->f) { *x=-*x; *y=-*y; *w=-*w; *h=-*h; }
 	*x+=e->x;
 	*y+=e->y;
 	return 1;
 }
 
-int body_line(struct element *e,unsigned int n,int *x0,int *y0) {
-	int r=package_line(e->p,n,x0,y0);
-	*x0+=e->x;
-	*y0+=e->y;
+int body_line(struct element *e,unsigned int n,int *x,int *y) {
+	int r=package_line(e->p,n,x,y);
+	if(e->f) { *x=-*x; *y=-*y; }
+	*x+=e->x;
+	*y+=e->y;
 	return r;
 }
 

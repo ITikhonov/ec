@@ -2,6 +2,7 @@
 struct element *element(unsigned int);
 int element_x(struct element *);
 int element_y(struct element *);
+int element_f(struct element *);
 
 char *element_name(struct element *);
 

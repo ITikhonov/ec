@@ -61,6 +61,7 @@ void draw(cairo_t *c) {
 		int j,x,y;
 		for(j=1;draw_pin(c,e,j);j++) { ; }
 
+		cairo_save(c);
 		for(j=0;;j++) {
 			int r;
 			switch((r=body_line(e,j,&x,&y))) {
@@ -72,7 +73,7 @@ void draw(cairo_t *c) {
 			printf("line %u %d %d\n",r,x,y);
 		}
 		end: cairo_stroke(c);
-
+		cairo_restore(c);
 	}
 	cairo_restore(c);
 
@@ -106,7 +107,7 @@ void draw(cairo_t *c) {
 				wire_corner(sw,sc-1,&x1,&y1);
 			}
 			cairo_save(c);
-			cairo_set_source_rgb(c,0,255,128);
+			cairo_set_source_rgb(c,0,1,0.5);
 			cairo_move_to(c,x/10.0,y/10.0);
 			cairo_line_to(c,x1/10.0,y1/10.0);
 			cairo_stroke(c);

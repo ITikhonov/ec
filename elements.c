@@ -75,10 +75,7 @@ int pin_rect(struct element *e,int pin,int x[4],int y[4]) {
 	x[2]=x0+w;	y[2]=y0+h;
 	x[3]=x0;	y[3]=y0+h;
 
-	if(element_f(e)) {
-		x[0]*=-1; x[1]*=-1; x[2]*=-1; x[3]*=-1;
-		y[0]*=-1; y[1]*=-1; y[2]*=-1; y[3]*=-1;
-	}
+	if(element_f(e)) { x[0]*=-1; x[1]*=-1; x[2]*=-1; x[3]*=-1; }
 
 
 	if(e->a) {
@@ -104,7 +101,7 @@ int pin_center(struct element *e,int pin,int *x,int *y) {
 	int w,h;
 	if(!package_pin_rect(e->p,pin,x,y,&w,&h)) return 0;
 	*x+=w/2; *y+=h/2;
-	if(e->f) { *x=-*x; *y=-*y; }
+	if(e->f) { *x=-*x; }
 	if(e->a) { rotate(e->a,x,y); }
 	*x+=e->x;
 	*y+=e->y;
@@ -113,7 +110,7 @@ int pin_center(struct element *e,int pin,int *x,int *y) {
 
 int body_line(struct element *e,unsigned int n,int *x,int *y) {
 	int r=package_line(e->p,n,x,y);
-	if(e->f) { *x=-*x; *y=-*y; }
+	if(e->f) { *x=-*x; }
 	if(e->a) { rotate(e->a,x,y); }
 	*x+=e->x;
 	*y+=e->y;

@@ -52,13 +52,9 @@ int wire_add_corner(struct wire *w,int after,int x,int y) {
 
 int wire_corner(struct wire *w,unsigned int i,int *x,int *y) {
 	if(i==0) {
-		int w0,h0;
-		pin_rect(w->a,w->ap,x,y,&w0,&h0);
-                *x+=w0/2; *y+=h0/2;
+		pin_center(w->a,w->ap,x,y);
 	} else if(i==w->cn+1) {
-		int w0,h0;
-		pin_rect(w->b,w->bp,x,y,&w0,&h0);
-                *x+=w0/2; *y+=h0/2;
+		pin_center(w->b,w->bp,x,y);
 	} else if(i<=w->cn) {
 		*x=w->corners[i-1].x;
 		*y=w->corners[i-1].y;

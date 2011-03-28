@@ -14,7 +14,9 @@ void element_seta(struct element *,int);
 void element_setflip(struct element *,int);
 void element_set_package(struct element *,char *);
 
-int pin_rect(struct element *,int,int *x, int *y, int *w, int *h);
+int pin_center(struct element *,int,int *x,int *y);
+int pin_rect(struct element *,int,int x[4],int y[4]);
+
 int body_line(struct element *,unsigned int,int *x0,int *y0);
 
 

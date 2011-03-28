@@ -95,7 +95,7 @@ static void package(char *s) {
 static void pin(char *s) {
 	spin=atoi(s);
 	int t;
-	if(!pin_rect(e,spin,&t,&t,&t,&t)) spin=-1;
+	if(!pin_center(e,spin,&t,&t)) spin=-1;
 	else if(we&&wp!=-1) {
 		make_wire(we,wp,e,spin);
 		we=e; wp=spin;

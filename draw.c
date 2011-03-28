@@ -32,8 +32,8 @@ void draw(cairo_t *c) {
 
 		cairo_move_to(c,element_x(e)/10.0,element_y(e)/10.0-3);
 		cairo_show_text(c,element_name(e));
-		int j,x,y,w,h;
-		for(j=1;pin_rect(e,j,&x,&y,&w,&h);j++) {
+		int j,x,y,w=50,h=50;
+		for(j=1;pin_center(e,j,&x,&y);j++) {
 			if(e==se && spin!=-1) {
 				 if(spin==j) { cairo_set_source_rgb(c,255,0,0); }
 				 else { cairo_set_source_rgb(c,0,0,0); }
@@ -64,24 +64,14 @@ void draw(cairo_t *c) {
 	struct wire *sw=selected_wire_corner(&sc);
 	struct wire *w;
 	for(i=0;(w=wire(i));i++) {
-		int x0,y0,w0,h0,x1,y1,p;
-
-		struct element *e=wire_a(w,&p);
-		if(!pin_rect(e,p,&x0,&y0,&w0,&h0)) continue;
-		x0+=w0/2; y0+=h0/2;
-		cairo_move_to(c,x0/10.0,y0/10.0);
-
 		int j,x,y;
-		for(j=0;wire_corner(w,j,&x,&y);j++) {
+		wire_corner(w,0,&x,&y);
+		cairo_move_to(c,x/10.0,y/10.0);
+
+		for(j=1;wire_corner(w,j,&x,&y);j++) {
 			cairo_line_to(c,x/10.0,y/10.0);
 		}
-
-		e=wire_b(w,&p);
-		if(!pin_rect(e,p,&x1,&y1,&w0,&h0)) continue;
-		x1+=w0/2; y1+=h0/2;
-		cairo_line_to(c,x1/10.0,y1/10.0);
 		cairo_stroke(c);
-
 	}
 
 	cairo_restore(c);

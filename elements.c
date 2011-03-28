@@ -56,9 +56,16 @@ void element_set_package(struct element *e,char *s) {
 
 
 
-int pin_rect(struct element *e,int pin,int *x,int *y,int *w,int *h) {
-	if(!package_pin_rect(e->p,pin,x,y,w,h)) return 0;
-	if(e->f) { *x=-*x; *y=-*y; *w=-*w; *h=-*h; }
+int pin_rect(struct element *e,int pin,int *x,int *y) {
+	return 0;
+}
+
+
+int pin_center(struct element *e,int pin,int *x,int *y) {
+	int w,h;
+	if(!package_pin_rect(e->p,pin,x,y,&w,&h)) return 0;
+	*x+=w/2; *y+=h/2;
+	if(e->f) { *x=-*x; *y=-*y; }
 	*x+=e->x;
 	*y+=e->y;
 	return 1;

@@ -12,6 +12,10 @@ struct package {
 	int (*line)(struct package *,unsigned int,int *x0,int *y0);
 };
 
+static void empty_name(struct package *p, char name[32]) {
+	strcpy(name,"EMPTY");
+}
+
 static int empty_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
 	if(n>1) return 0;
 	*x=0;
@@ -29,6 +33,7 @@ static struct package *empty(char *args) {
 	struct package *p=malloc(sizeof(struct package));
 	p->pin_rect=empty_pin_rect;
 	p->line=empty_line;
+	p->name=empty_name;
 	return p;
 }
 

@@ -70,6 +70,10 @@ static int rect_line(struct package *p,unsigned int n,int *x,int *y) {
 	case 1: *x=160; *y=0; return PL_LINE;
 	case 2: *x=40; *y=125; return PL_MOVE;
 	case 3: *x=160; *y=125; return PL_LINE;
+
+	case 4: return PL_CLOSE;
+	case 5: *x=70; *y=20; return PL_MOVE;
+	case 6: *x=70; *y=100; return PL_LINE;
 	default: return PL_END;
 	}
 }
@@ -141,8 +145,8 @@ static int tqfp_line(struct package *p,unsigned int n,int *x,int *y) {
 	case 2: *x=1100; *y=1100; return PL_LINE;
 	case 3: *x=100; *y=1100; return PL_LINE;
 	case 4: return PL_CLOSE;
-	case 5: *x=120; *y=181+18; return PL_MOVE;
-	case 6: *x=150; *y=181+18; return PL_LINE;
+	case 5: *x=140; *y=181; return PL_MOVE;
+	case 6: *x=140; *y=181+37; return PL_LINE;
 	default: return PL_END;
 	}
 }

@@ -10,6 +10,14 @@ static int draw_pin(cairo_t *c,struct element *e,int n) {
 	int x[4],y[4];
 	if(!pin_rect(e,n,x,y)) return 0;
 
+	int spin;
+	struct element *se=selected(&spin);
+
+	cairo_save(c);
+	if(se==e && spin==n) {
+		cairo_set_source_rgb(c,255,0,0);
+	}
+
 	cairo_move_to(c,x[0]/10.0,y[0]/10.0);
 	cairo_line_to(c,x[1]/10.0,y[1]/10.0);
 	cairo_line_to(c,x[2]/10.0,y[2]/10.0);
@@ -18,6 +26,7 @@ static int draw_pin(cairo_t *c,struct element *e,int n) {
 	if(!element_f(e)) { cairo_fill_preserve(c); }
 	cairo_stroke(c);
 
+	cairo_restore(c);
 	return 1;
 }
 

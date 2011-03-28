@@ -38,6 +38,7 @@ void draw(cairo_t *c) {
 	int spin;
 	struct element *se=selected(&spin);
 
+	cairo_save(c);
 	for(i=0;;i++) {
 		struct element *e=element(i);
 		if(!e) break;
@@ -64,6 +65,7 @@ void draw(cairo_t *c) {
 		end: cairo_stroke(c);
 
 	}
+	cairo_restore(c);
 
 	cairo_save(c);
 	cairo_set_line_join(c,CAIRO_LINE_JOIN_ROUND);

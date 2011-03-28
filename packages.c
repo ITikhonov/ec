@@ -87,6 +87,72 @@ static struct package *rect(char *args) {
 	return (struct package*)p;
 }
 
+
+/******************************************************
+ * SO
+ ******************************************************
+ */
+
+struct so {
+	struct package p;
+	int pins;
+};
+
+static void so_name(struct package *p0, char name[32]) {
+	struct so *p=(struct so*)p0;
+	snprintf(name,32,"SO.%u",p->pins);
+}
+
+static int so_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
+	struct so *p=(struct so*)p0;
+	if(n>p->pins) return 0;
+
+	n--;
+	int right=n/(p->pins/2);
+
+	if(!right) {
+		*x=0;
+		*y=127*n+35;
+		*h=38;
+		*w=104;
+	} else {
+		*x=390+104;
+		*y=35+127*(p->pins-n-1);
+		*h=38;
+		*w=104;
+	}
+
+	return 1;
+}
+
+static int so_line(struct package *p0,unsigned int n,int *x,int *y) {
+	struct so *p=(struct so*)p0;
+	int D=(p->pins/2-1)*127+38+35*2;
+	switch(n) {
+	case 0: *x=104; *y=0; return PL_MOVE;
+	case 1: *x=494; *y=0; return PL_LINE;
+	case 2: *x=494; *y=D; return PL_LINE;
+	case 3: *x=104; *y=D; return PL_LINE;
+	case 4: return PL_CLOSE;
+	case 5: *x=140; *y=35; return PL_MOVE;
+	case 6: *x=140+38; *y=35; return PL_LINE;
+	case 7: *x=140+38; *y=35+38; return PL_LINE;
+	case 8: *x=140; *y=35+38; return PL_LINE;
+	case 9: return PL_CLOSE;
+	default: return PL_END;
+	}
+}
+
+
+static struct package *so(char *args) {
+	struct so *p=malloc(sizeof(struct so));
+	p->p.pin_rect=so_pin_rect;
+	p->p.name=so_name;
+	p->p.line=so_line;
+	p->pins=atoi(args);
+	return (struct package*)p;
+}
+
 /******************************************************
  * TQFP
  ******************************************************
@@ -172,6 +238,8 @@ struct package *package(char *name) {
 		return tqfp(p+1);
 	} else if(len==1 && strncmp(name,"R",1)==0) {
 		return rect(p+1);
+	} else if(len==2 && strncmp(name,"SO",2)==0) {
+		return so(p+1);
 	}
 	return 0;
 }

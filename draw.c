@@ -6,6 +6,21 @@
 #include "commands.h"
 #include "wires.h"
 
+static int draw_pin(cairo_t *c,struct element *e,int n) {
+	int x[4],y[4];
+	if(!pin_rect(e,n,x,y)) return 0;
+
+	cairo_move_to(c,x[0]/10.0,y[0]/10.0);
+	cairo_line_to(c,x[1]/10.0,y[1]/10.0);
+	cairo_line_to(c,x[2]/10.0,y[2]/10.0);
+	cairo_line_to(c,x[3]/10.0,y[3]/10.0);
+	cairo_close_path(c);
+	if(!element_f(e)) { cairo_fill_preserve(c); }
+	cairo_stroke(c);
+
+	return 1;
+}
+
 void draw(cairo_t *c) {
 	int i;
 
@@ -32,16 +47,9 @@ void draw(cairo_t *c) {
 
 		cairo_move_to(c,element_x(e)/10.0,element_y(e)/10.0-3);
 		cairo_show_text(c,element_name(e));
-		int j,x,y,w=50,h=50;
-		for(j=1;pin_center(e,j,&x,&y);j++) {
-			if(e==se && spin!=-1) {
-				 if(spin==j) { cairo_set_source_rgb(c,255,0,0); }
-				 else { cairo_set_source_rgb(c,0,0,0); }
-			}
-			cairo_rectangle(c,x/10.0,y/10.0,w/10.0,h/10.0);
-			if(!element_f(e)) { cairo_fill_preserve(c); }
-			cairo_stroke(c);
-		}
+
+		int j,x,y;
+		for(j=1;draw_pin(c,e,j);j++) { ; }
 
 		for(j=0;;j++) {
 			int r;

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <math.h>
 
 #include "elements.h"
 #include "packages.h"
@@ -54,10 +55,48 @@ void element_set_package(struct element *e,char *s) {
 	}
 }
 
+static void rotate(int a,int *x,int *y) {
+	int x0=*x; int y0=*y;
+	float r=(M_PI/180.0)*a;
+	float c=cos(r);
+	float s=sin(r);
+
+	*x=x0*c-y0*s;
+	*y=x0*s+y0*c;
+}
+
+int pin_rect(struct element *e,int pin,int x[4],int y[4]) {
+	int x0,y0,w,h;
+	if(!package_pin_rect(e->p,pin,&x0,&y0,&w,&h)) return 0;
 
 
-int pin_rect(struct element *e,int pin,int *x,int *y) {
-	return 0;
+	x[0]=x0;	y[0]=y0;
+	x[1]=x0+w;	y[1]=y0;
+	x[2]=x0+w;	y[2]=y0+h;
+	x[3]=x0;	y[3]=y0+h;
+
+	if(element_f(e)) {
+		x[0]*=-1; x[1]*=-1; x[2]*=-1; x[3]*=-1;
+		y[0]*=-1; y[1]*=-1; y[2]*=-1; y[3]*=-1;
+	}
+
+
+	if(e->a) {
+		rotate(e->a,&x[0],&y[0]);
+		rotate(e->a,&x[1],&y[1]);
+		rotate(e->a,&x[2],&y[2]);
+		rotate(e->a,&x[3],&y[3]);
+	}
+	
+
+	int ex=element_x(e);
+	int ey=element_y(e);
+	x[0]+=ex; x[1]+=ex; x[2]+=ex; x[3]+=ex;
+	y[0]+=ey; y[1]+=ey; y[2]+=ey; y[3]+=ey;
+
+
+
+	return 1;
 }
 
 
@@ -66,6 +105,7 @@ int pin_center(struct element *e,int pin,int *x,int *y) {
 	if(!package_pin_rect(e->p,pin,x,y,&w,&h)) return 0;
 	*x+=w/2; *y+=h/2;
 	if(e->f) { *x=-*x; *y=-*y; }
+	if(e->a) { rotate(e->a,x,y); }
 	*x+=e->x;
 	*y+=e->y;
 	return 1;
@@ -74,6 +114,7 @@ int pin_center(struct element *e,int pin,int *x,int *y) {
 int body_line(struct element *e,unsigned int n,int *x,int *y) {
 	int r=package_line(e->p,n,x,y);
 	if(e->f) { *x=-*x; *y=-*y; }
+	if(e->a) { rotate(e->a,x,y); }
 	*x+=e->x;
 	*y+=e->y;
 	return r;

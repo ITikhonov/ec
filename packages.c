@@ -13,7 +13,12 @@ struct package {
 };
 
 static int empty_pin_rect(struct package *p0,int n,int *x,int *y,int *w,int *h) {
-	return 0;
+	if(n>1) return 0;
+	*x=0;
+	*y=0;
+	*w=50;
+	*h=50;
+	return 1;
 }
 
 static int empty_line(struct package *p,unsigned int n,int *x0,int *y0) {

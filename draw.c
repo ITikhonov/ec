@@ -5,6 +5,7 @@
 #include "elements.h"
 #include "commands.h"
 #include "wires.h"
+#include "colors.h"
 
 static int draw_pin(cairo_t *c,struct element *e,int n) {
 	int x[4],y[4];
@@ -33,7 +34,7 @@ static int draw_pin(cairo_t *c,struct element *e,int n) {
 void draw(cairo_t *c) {
 	int i;
 
-	{ cairo_save(c);
+	if(0) { cairo_save(c);
 		cairo_set_source_rgb(c,0.8,0.8,0.8);
 		cairo_set_line_width(c,1);
 
@@ -86,6 +87,9 @@ void draw(cairo_t *c) {
 	for(i=0;(w=wire(i));i++) {
 		int j,x,y;
 		wire_corner(w,0,&x,&y);
+		int cn=i%ncolors;
+		cairo_set_source_rgb(c,colors[cn][0],colors[cn][1],colors[cn][2]);
+		cairo_set_line_width(c,5);
 		cairo_move_to(c,x/10.0,y/10.0);
 
 		for(j=1;wire_corner(w,j,&x,&y);j++) {

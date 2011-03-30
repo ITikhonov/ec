@@ -90,8 +90,8 @@ struct wire *wire(unsigned int i) {
 	return 0;
 }
 
-struct element *wire_a(struct wire *w,int *p) { *p=w->ap; return w->a; }
-struct element *wire_b(struct wire *w,int *p) { *p=w->bp; return w->b; }
+struct element *wire_a(struct wire *w,int *p) { if(p) *p=w->ap; return w->a; }
+struct element *wire_b(struct wire *w,int *p) { if(p) *p=w->bp; return w->b; }
 
 void wires_load(FILE *f) {
 	int i;

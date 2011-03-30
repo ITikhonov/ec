@@ -3,6 +3,7 @@ struct element *element(unsigned int);
 int element_x(struct element *);
 int element_y(struct element *);
 int element_f(struct element *);
+int element_h(struct element *);
 
 char *element_name(struct element *);
 
@@ -13,6 +14,7 @@ void element_sety(struct element *,int);
 void element_seta(struct element *,int);
 void element_setflip(struct element *,int);
 void element_set_package(struct element *,char *);
+void element_seth(struct element *e,int h);
 
 int pin_center(struct element *,int,int *x,int *y);
 int pin_rect(struct element *,int,int x[4],int y[4]);

@@ -16,7 +16,7 @@ static int draw_pin(cairo_t *c,struct element *e,int n) {
 
 	cairo_save(c);
 	if(se==e && spin==n) {
-		cairo_set_source_rgb(c,255,0,0);
+		cairo_set_source_rgb(c,1,0,0);
 	}
 
 	cairo_move_to(c,x[0]/10.0,y[0]/10.0);
@@ -53,7 +53,8 @@ void draw(cairo_t *c) {
 		struct element *e=element(i);
 		if(!e) break;
 
-		if(e==se && spin==-1) { cairo_set_source_rgb(c,255,0,0); }
+		if(e==se && spin==-1) { cairo_set_source_rgb(c,1,0,0); }
+		else if(element_h(e)) { cairo_set_source_rgb(c,0.7,0.7,0.7); }
 		else { cairo_set_source_rgb(c,0,0,0); }
 
 		cairo_move_to(c,element_x(e)/10.0,element_y(e)/10.0-3);
@@ -86,6 +87,8 @@ void draw(cairo_t *c) {
 	struct wire *w;
 	for(i=0;(w=wire(i));i++) {
 		int j,x,y;
+		if(element_h(wire_a(w,0))) continue;
+		if(element_h(wire_b(w,0))) continue;
 		wire_corner(w,0,&x,&y);
 		int cn=i%ncolors;
 		cairo_set_source_rgb(c,colors[cn][0],colors[cn][1],colors[cn][2]);

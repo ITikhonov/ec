@@ -10,6 +10,7 @@
 struct element {
 	char name[32];
 	int x,y,a,f;
+	int h;
 	struct package *p;
 } elements[1024];
 
@@ -23,6 +24,7 @@ struct element *element(unsigned int i) {
 int element_x(struct element *e) { return e->x; }
 int element_y(struct element *e) { return e->y; }
 int element_f(struct element *e) { return e->f; }
+int element_h(struct element *e) { return e->h; }
 char *element_name(struct element *e) { return e->name; }
 
 
@@ -39,6 +41,7 @@ struct element *element_create(char *s) {
 	struct element *e=elements+elements_n++;
 	strncpy(e->name,s,31);
 	e->p=package("EMPTY");
+	e->x=e->y=e->a=e->f=e->h=0;
 	return e;
 }
 
@@ -46,6 +49,8 @@ void element_setx(struct element *e,int x) { e->x=x; }
 void element_sety(struct element *e,int y) { e->y=y; }
 void element_seta(struct element *e,int a) { e->a=a; }
 void element_setflip(struct element *e,int f) { e->f=f; }
+
+void element_seth(struct element *e,int h) { e->h=h; }
 
 void element_set_package(struct element *e,char *s) {
 	struct package *p=package(s);

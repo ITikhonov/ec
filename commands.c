@@ -151,6 +151,9 @@ static void add() {
 	}
 }
 
+static void hide() {
+	element_seth(e,!element_h(e));
+}
 
 int command(char *s) {
 	printf("command '%s'\n",s);
@@ -163,6 +166,7 @@ int command(char *s) {
 	case '.': pin(s+1); break;
 	case '-': wiring(); break;
 	case 'w': wireadjust(); break;
+	case 'h': hide(); break;
 	case 's': save(s+1); break;
 	case 'l': load(s+1); break;
 	case 'q': return 1;

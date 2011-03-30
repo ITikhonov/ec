@@ -34,14 +34,27 @@ struct element *element_find(char *s) {
         for(i=0;(e=element(i));i++) {
 		if(strcmp(s,e->name)==0) return e;
 	}
+	printf("EF: %s not found\n",s);
 	return 0;
 }
 
+static void autoname(char *s,int l,char *name) {
+	int i=1;
+	for(;i<200;i++) {
+		snprintf(name,32,"%.*s%u",l,s,i);
+		printf("autoname %s\n",name);
+		if(!element_find(name)) break;
+	}
+}
+
 struct element *element_create(char *s) {
-	struct element *e=elements+elements_n++;
-	strncpy(e->name,s,31);
+	struct element *e=elements+elements_n;
+	int l=strlen(s)-1;
+	if(s[l]=='?') { autoname(s,l,e->name); }
+	else { strncpy(e->name,s,31); }
 	e->p=package("EMPTY");
 	e->x=e->y=e->a=e->f=e->h=0;
+	elements_n++;
 	return e;
 }
 

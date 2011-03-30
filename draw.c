@@ -72,7 +72,6 @@ void draw(cairo_t *c) {
 			case PL_CLOSE: cairo_close_path(c); break;
 			default: goto end;
 			}
-			printf("line %u %d %d\n",r,x,y);
 		}
 		end: cairo_stroke(c);
 		cairo_restore(c);

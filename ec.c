@@ -41,6 +41,10 @@ main(int argc, char *argv[])
 
     win_init(&win);
 
+    if(argc>1) {
+	load(argv[1]);
+    }
+
     win_draw();
 
     win_handle_events(&win);

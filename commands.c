@@ -117,7 +117,7 @@ static void save(char *s) {
 	fclose(f);
 }
 
-static void load(char *s) {
+void load(char *s) {
 	FILE *f=fopen(s,"r");
 	elements_load(f);
 	wires_load(f);

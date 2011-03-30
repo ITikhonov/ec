@@ -93,6 +93,28 @@ struct wire *wire(unsigned int i) {
 struct element *wire_a(struct wire *w,int *p) { if(p) *p=w->ap; return w->a; }
 struct element *wire_b(struct wire *w,int *p) { if(p) *p=w->bp; return w->b; }
 
+
+// a 1 e 3 4 5 b
+
+void wire_insert(struct wire *w,int n,struct element *e) {
+	struct wire *w1=make_wire(e,2,w->b,w->bp);
+	w->b=e; w->bp=1;
+
+	int an=n-1;
+	int bn=w->cn-n;
+
+	struct corner *ac=malloc(an*sizeof(struct corner));
+	struct corner *bc=malloc(bn*sizeof(struct corner));
+	int i;
+	for(i=0;i<an;i++) { ac[i]=w->corners[i]; }
+	for(i=0;i<bn;i++) { ac[i]=w->corners[n+i]; }
+
+	w->corners=realloc(w->corners,0);
+	w->corners=ac; w->cn=an;
+	w1->corners=bc; w1->cn=bn;
+}
+
+
 void wires_load(FILE *f) {
 	int i;
 	for(i=0;i<wiren;i++) { free(wires[i].corners); }

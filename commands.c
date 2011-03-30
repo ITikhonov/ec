@@ -155,6 +155,17 @@ static void hide() {
 	element_seth(e,!element_h(e));
 }
 
+static void insert(char *name) {
+	int x,y;
+	if(wire_corner(w,wc,&x,&y)) {
+		struct element *e=element_create(name);
+		element_setx(e,x);
+		element_sety(e,y);
+		element_set_package(e,"R.0805");
+		wire_insert(w,wc,e);
+	}
+}
+
 int command(char *s) {
 	printf("command '%s'\n",s);
 	switch(*s) {
@@ -169,6 +180,7 @@ int command(char *s) {
 	case 'h': hide(); break;
 	case 's': save(s+1); break;
 	case 'l': load(s+1); break;
+	case 'i': insert(s+1); break;
 	case 'q': return 1;
 	//case '=': name(s+1); break;
 	//case '&': part(s+1); break;

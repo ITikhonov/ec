@@ -14,6 +14,8 @@ void wire_corner_move(struct wire *,int n,int x,int y);
 
 int wire_corner(struct wire *,unsigned int,int*x,int*y);
 
+void wire_insert(struct wire *,int,struct element *);
+
 #include <stdio.h>
 
 void wires_load(FILE *);

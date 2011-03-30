@@ -129,7 +129,7 @@ void elements_save(FILE *f) {
         for(i=0;(e=element(i));i++) {
 		char p[32];
 		package_name(e->p,p);
-		fprintf(f,"E %s %d %d %d %d %s\n",e->name,e->x,e->y,e->a,e->f,p);
+		fprintf(f,"E %s %d %d %d %d %d %s\n",e->name,e->x,e->y,e->a,e->f,e->h,p);
 	}
 	fprintf(f,".\n");
 }
@@ -141,11 +141,11 @@ void elements_load(FILE *f) {
 		printf("EL: %c\n",c);
 		if(c=='E') {
 			char name[32];
-			int x,y,a,fl;
+			int x,y,a,fl,h;
 			char pn[32];
-			fscanf(f," %31s %d %d %d %d %31s\n",name,&x,&y,&a,&fl,pn);
+			fscanf(f," %31s %d %d %d %d %d %31s\n",name,&x,&y,&a,&fl,&h,pn);
 			struct element *e=element_create(name);
-			e->x=x; e->y=y; e->a=a; e->f=fl;
+			e->x=x; e->y=y; e->a=a; e->f=fl; e->h=h;
 			if(e->p) free(e->p);
 			e->p=package(pn);
 		} else { fgetc(f); break; }

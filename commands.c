@@ -98,7 +98,7 @@ static void pin(char *s) {
 	if(!pin_center(e,spin,&t,&t)) spin=-1;
 	else if(we&&wp!=-1) {
 		make_wire(we,wp,e,spin);
-		we=e; wp=spin;
+		we=0; wp=0;
 	}
 }
 

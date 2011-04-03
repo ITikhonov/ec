@@ -25,6 +25,14 @@ void wire_corner_move(struct wire *w,int n,int x,int y) {
 	w->corners[n-1].y=y;
 }
 
+struct wire *find_wire(struct element *a,int ap,struct element *b,int bp) {
+	int i;
+	for(i=0;i<wiren;i++) {
+		struct wire *w=&wires[i];
+		if(w->a==a && w->b==b && w->ap==ap && w->bp==bp) return w;
+	}
+	return 0;
+}
 
 struct wire *make_wire(struct element *a,int ap,struct element *b,int bp) {
 	struct wire *w=wires+wiren++;
@@ -114,12 +122,7 @@ void wire_insert(struct wire *w,int n,struct element *e) {
 	w1->corners=bc; w1->cn=bn;
 }
 
-
 void wires_load(FILE *f) {
-	int i;
-	for(i=0;i<wiren;i++) { free(wires[i].corners); }
-	wiren=0;
-
 	struct wire *cw;
         for(;;) {
                 int c=fgetc(f);
@@ -129,11 +132,11 @@ void wires_load(FILE *f) {
                         fscanf(f," %31s %d %31s %d\n",na,&pa,nb,&pb);
 			struct element *a=element_find(na);
 			struct element *b=element_find(nb);
-			cw=make_wire(a,pa,b,pb);
+			cw=find_wire(a,pa,b,pb);
 		} else if(c=='C') {
 			int x,y;
                         fscanf(f," %d %d\n",&x,&y);
-			wire_add_corner(cw,cw->cn,x,y);
+			if(cw) wire_add_corner(cw,cw->cn,x,y);
 		} else break;
 	}
 

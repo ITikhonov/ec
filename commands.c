@@ -42,6 +42,9 @@ static struct wire *w;
 static int wc=-1;
 static int wnth=0;
 
+char *schem;
+char *board;
+
 struct element *selected(int *p) {
 	*p=spin;
 	return e;
@@ -117,7 +120,8 @@ static void save(char *s) {
 	fclose(f);
 }
 
-void load(char *s) {
+void load_board(char *s) {
+	board=s;
 	FILE *f=fopen(s,"r");
 	elements_load(f);
 	wires_load(f);
@@ -166,7 +170,8 @@ static void insert(char *name) {
 	}
 }
 
-void load_commands(char *s) {
+void load_schem(char *s) {
+	schem=s;
         char buf[1024],*p=0;
         FILE *f=fopen(s,"r");
         for(;;) {
@@ -181,6 +186,7 @@ void load_commands(char *s) {
         }
         exit:;
 }
+
 int command(char *s) {
 	printf("command '%s'\n",s);
 	switch(*s) {
@@ -194,8 +200,8 @@ int command(char *s) {
 	case 'w': wireadjust(); break;
 	case 'h': hide(); break;
 	case 's': save(s+1); break;
-	case 'l': load(s+1); break;
-	case 'c': load_commands(s+1); break;
+	case 'l': load_board(s+1); break;
+	case 'c': load_schem(s+1); break;
 	case 'i': insert(s+1); break;
 	case 'q': return 1;
 	//case '=': name(s+1); break;

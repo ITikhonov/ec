@@ -41,8 +41,9 @@ main(int argc, char *argv[])
 
     win_init(&win);
 
-    if(argc>1) {
-	load(argv[1]);
+    if(argc>2) {
+	load_schem(argv[1]);
+	load_board(argv[2]);
     }
 
     win_draw();

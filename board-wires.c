@@ -98,27 +98,6 @@ char *board_wire_b(struct board_wire *w) { return w->b; }
 int board_wire_ap(struct board_wire *w) { return w->ap; }
 int board_wire_bp(struct board_wire *w) { return w->bp; }
 
-
-// a 1 e 3 4 5 b
-
-void board_wire_insert(struct board_wire *w,int n,char *e) {
-	struct board_wire *w1=board_make_wire(e,2,w->b,w->bp);
-	strcpy(w->b,e); w->bp=1;
-
-	int an=n-1;
-	int bn=w->cn-n;
-
-	struct corner *ac=malloc(an*sizeof(struct corner));
-	struct corner *bc=malloc(bn*sizeof(struct corner));
-	int i;
-	for(i=0;i<an;i++) { ac[i]=w->corners[i]; }
-	for(i=0;i<bn;i++) { ac[i]=w->corners[n+i]; }
-
-	w->corners=realloc(w->corners,0);
-	w->corners=ac; w->cn=an;
-	w1->corners=bc; w1->cn=bn;
-}
-
 void board_wires_load(FILE *f) {
 	struct board_wire *cw;
         for(;;) {

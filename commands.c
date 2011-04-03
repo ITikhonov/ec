@@ -26,38 +26,39 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "commands.h"
 #include "elements.h"
 #include "wires.h"
+#include "board-wires.h"
 
 static struct element *we=0;
 static int wp=-1;
 
 
-static struct element *e=0;
+static char e[32]={0};
 static int spin=-1;
 
-static struct wire *w;
+static struct board_wire *w;
 static int wc=-1;
 static int wnth=0;
 
 char *schem;
 char *board;
 
-struct element *selected(int *p) {
+char *selected(int *p) {
 	*p=spin;
 	return e;
 }
 
-struct wire *selected_wire_corner(int *n) {
+struct board_wire *selected_wire_corner(int *n) {
 	*n=wc;
 	return w;
 }
 
 static void select_element(char *s) {
-	e=element_find(s);
-	if(!e) e=element_create(s);
+	strcpy(e,s);
 	spin=-1;
 }
 
@@ -77,16 +78,16 @@ static void pos(char *s) {
 	int r,x,y,a,f;
 	r=convert_at(s,&x,&y,&a,&f);
 
-	if(e) {
+	if(e[0]) {
 		if(r&HAS_X) { element_setx(e,x); }
 		if(r&HAS_Y) { element_sety(e,y); }
 		if(r&HAS_A) { element_seta(e,a); }
 		if(r&HAS_F) { element_setflip(e,f); }
 	} else {
-		w=pick_wire_corner(x,y,&wc,wnth++);
+		w=board_pick_corner(x,y,&wc,wnth++);
 		if(w==0) {
 			wnth=0;
-			w=pick_wire_corner(x,y,&wc,wnth++);
+			w=board_pick_corner(x,y,&wc,wnth++);
 		}
 	}
 }

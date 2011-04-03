@@ -8,6 +8,7 @@
 #include <X11/Xutil.h>
 
 #include "commands.h"
+#include "board-commands.h"
 
 extern void draw(cairo_t *cr);
 

@@ -5,14 +5,14 @@
 #include "wires.h"
 #include "elements.h"
 
-struct wire {
+static struct wire {
 	char a[32];
 	int ap;
 	char b[32];
 	int bp;
 } wires[1024];
 
-int wiren=0;
+static int wiren=0;
 
 struct wire *find_wire(char *a,int ap,char *b,int bp) {
 	int i;

@@ -99,6 +99,7 @@ void board_elements_save(FILE *f) {
 }
 
 void board_elements_load(FILE *f) {
+	elements_n=0;
 	for(;;) {
 		int c=fgetc(f);
 		printf("EL: %c\n",c);

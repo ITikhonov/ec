@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "elements.h"
+#include "packages.h"
+#include "board-elements.h"
 #include "board-wires.h"
 
 struct corner { int x,y; };
@@ -57,8 +60,20 @@ int board_add_corner(struct board_wire *w,int after,int x,int y) {
 	return after+1;
 }
 
+static void pin_center(char *e,int n,int *x0,int *y0) {
+	int x[4],y[4];
+	package_pin_rect(element_package(e),n,x,y);
+	board_pin_center(board_element_find(e),x,y);
+	*x0=x[0];
+	*y0=y[0];
+}
+
 int board_corner(struct board_wire *w,unsigned int i,int *x,int *y) {
-	if(i<=w->cn) {
+	if(i==0) {
+		pin_center(w->a,w->ap,x,y);
+	} else if(i==w->cn+1) {
+		pin_center(w->b,w->bp,x,y);
+	} else if(i<=w->cn) {
 		*x=w->corners[i-1].x;
 		*y=w->corners[i-1].y;
 	} else {
@@ -99,6 +114,7 @@ int board_wire_ap(struct board_wire *w) { return w->ap; }
 int board_wire_bp(struct board_wire *w) { return w->bp; }
 
 void board_wires_load(FILE *f) {
+	wiren=0;
 	struct board_wire *cw;
         for(;;) {
                 int c=fgetc(f);

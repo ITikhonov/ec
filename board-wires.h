@@ -12,5 +12,7 @@ char *board_wire_b(struct board_wire *w);
 int board_wire_ap(struct board_wire *w);
 int board_wire_bp(struct board_wire *w);
 
+#include <stdio.h>
+
 void board_wires_load(FILE *f);
 void board_wires_save(FILE *f);

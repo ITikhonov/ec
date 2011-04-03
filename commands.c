@@ -31,65 +31,15 @@
 #include "commands.h"
 #include "elements.h"
 #include "wires.h"
-#include "board-wires.h"
 
-static struct element *we=0;
+static char we[32];
 static int wp=-1;
 
-
-static char e[32]={0};
+static char e[32];
 static int spin=-1;
 
-static struct board_wire *w;
-static int wc=-1;
-static int wnth=0;
-
-char *schem;
-char *board;
-
-char *selected(int *p) {
-	*p=spin;
-	return e;
-}
-
-struct board_wire *selected_wire_corner(int *n) {
-	*n=wc;
-	return w;
-}
-
-static void select_element(char *s) {
+void select_element(char *s) {
 	strcpy(e,s);
-	spin=-1;
-}
-
-enum {HAS_X=1,HAS_Y=2,HAS_A=4,HAS_F=8};
-
-static int convert_at(char *s,int*x,int*y,int*a,int*f) {
-	char *p;
-	int r=0;
-	*x=strtol(s,&p,10); if(s!=p) r|=HAS_X; if(*p==0) return r; s=p+1;
-	*y=strtol(s,&p,10); if(s!=p) r|=HAS_Y; if(*p==0) return r; s=p+1;
-	*a=strtol(s,&p,10); if(s!=p) r|=HAS_A; if(*p==0) return r; s=p+1;
-	*f=strtol(s,&p,10); if(s!=p) r|=HAS_F; return r;
-}
-
-
-static void pos(char *s) {
-	int r,x,y,a,f;
-	r=convert_at(s,&x,&y,&a,&f);
-
-	if(e[0]) {
-		if(r&HAS_X) { element_setx(e,x); }
-		if(r&HAS_Y) { element_sety(e,y); }
-		if(r&HAS_A) { element_seta(e,a); }
-		if(r&HAS_F) { element_setflip(e,f); }
-	} else {
-		w=board_pick_corner(x,y,&wc,wnth++);
-		if(w==0) {
-			wnth=0;
-			w=board_pick_corner(x,y,&wc,wnth++);
-		}
-	}
 }
 
 static void package(char *s) {
@@ -98,81 +48,20 @@ static void package(char *s) {
 
 static void pin(char *s) {
 	spin=atoi(s);
-	int t;
-	if(!pin_center(e,spin,&t,&t)) spin=-1;
-	else if(we&&wp!=-1) {
+	if(we[0]&&wp!=-1) {
 		make_wire(we,wp,e,spin);
-		we=0; wp=0;
+		we[0]=0; wp=0;
 	}
 }
 
-
 static void wiring() {
-	we=e;
+	strcpy(we,e);
 	wp=spin;
 }
 
-
-
-static void save(char *s) {
-	FILE *f=fopen(s,"w");
-	elements_save(f);
-	wires_save(f);
-	fclose(f);
-}
-
-void load_board(char *s) {
-	board=s;
-	FILE *f=fopen(s,"r");
-	elements_load(f);
-	wires_load(f);
-	fclose(f);
-}
-
-static void wireadjust() {
-	e=0; we=0;
-}
-
-static void move(char *s) {
-	int x,y;
-	sscanf(s,"%d.%d",&x,&y);
-	if(w && wc>=0) {
-		wire_corner_move(w,wc,x,y);
-	}
-}
-
-static void add() {
-	if(w) {
-		int x,y,x1,y1;
-		if(wire_corner(w,wc,&x,&y)) {
-			if(!wire_corner(w,wc+1,&x1,&y1)) {
-				wire_corner(w,wc-1,&x1,&y1);
-			}
-			x=(x+x1)/2;
-			y=(y+y1)/2;
-
-			wc=wire_add_corner(w,wc,x,y);
-		}
-	}
-}
-
-static void hide() {
-	element_seth(e,!element_h(e));
-}
-
-static void insert(char *name) {
-	int x,y;
-	if(wire_corner(w,wc,&x,&y)) {
-		struct element *e=element_create(name);
-		element_setx(e,x);
-		element_sety(e,y);
-		element_set_package(e,"R.0805");
-		wire_insert(w,wc,e);
-	}
-}
+static int command(char *s);
 
 void load_schem(char *s) {
-	schem=s;
         char buf[1024],*p=0;
         FILE *f=fopen(s,"r");
         for(;;) {
@@ -188,25 +77,14 @@ void load_schem(char *s) {
         exit:;
 }
 
-int command(char *s) {
+static int command(char *s) {
 	printf("command '%s'\n",s);
 	switch(*s) {
-	case '\0': add(); break;
 	case 'A'...'Z': select_element(s); break;
-	case '@': pos(s+1); break;
-	case '!': move(s+1); break;
 	case '#': package(s+1); break;
 	case '.': pin(s+1); break;
 	case '-': wiring(); break;
-	case 'w': wireadjust(); break;
-	case 'h': hide(); break;
-	case 's': save(s+1); break;
-	case 'l': load_board(s+1); break;
 	case 'c': load_schem(s+1); break;
-	case 'i': insert(s+1); break;
-	case 'q': return 1;
-	//case '=': name(s+1); break;
-	//case '&': part(s+1); break;
 	}
 	return 0;
 }

@@ -16,8 +16,13 @@ void package_name(struct package *p, char name[32]) {
 	p->name(p,name);
 }
 
-int package_pin_rect(struct package *p,int n,int *x, int *y, int *w, int *h) {
-	return p->pin_rect(p,n,x,y,w,h);
+int package_pin_rect(struct package *p,int n,int x[4], int y[4]) {
+	int w,h;
+	if(!p->pin_rect(p,n,x,y,&w,&h)) return 0;
+	x[1]=x[0]+w; y[1]=y[0];
+	x[2]=x[0]+w; y[2]=y[0]+h;
+	x[3]=x[0]; y[3]=y[0]+h;
+	return 1;
 }
 
 int package_line(struct package *p,unsigned int n,int *x0,int *y0) {

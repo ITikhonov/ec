@@ -3,12 +3,19 @@
 
 #include "packages.h"
 #include "elements.h"
-#include "commands.h"
 #include "wires.h"
+#include "board-elements.h"
+#include "board-wires.h"
+#include "board-commands.h"
 #include "colors.h"
 
-static int draw_pin(cairo_t *c,struct element *e,int n) {
+#if 0
+
+static int draw_pin(cairo_t *c,char *e,int n) {
 	int x[4],y[4];
+
+
+
 	if(!pin_rect(e,n,x,y)) return 0;
 
 	int spin;
@@ -31,42 +38,33 @@ static int draw_pin(cairo_t *c,struct element *e,int n) {
 	return 1;
 }
 
+#endif
+
 void draw(cairo_t *c) {
 	int i;
-
-	if(0) { cairo_save(c);
-		cairo_set_source_rgb(c,0.8,0.8,0.8);
-		cairo_set_line_width(c,1);
-
-		int w=cairo_image_surface_get_width (cairo_get_target(c));
-		int h=cairo_image_surface_get_width (cairo_get_target(c));
-		for(i=0;i<w;i+=10) { cairo_move_to(c,i,0); cairo_line_to(c,i,h); }
-		for(i=0;i<h;i+=10) { cairo_move_to(c,0,i); cairo_line_to(c,w,i); }
-		cairo_stroke(c);
-	cairo_restore(c); }
-
-	int spin;
-	struct element *se=selected(&spin);
+	struct board_element *se=selected_element();
 
 	cairo_save(c);
-	for(i=0;;i++) {
-		struct element *e=element(i);
-		if(!e) break;
+	char *e0;
+	for(i=0;(e0=element(i));i++) {
+		struct board_element *e=board_element_find(e0);
 
-		if(e==se && spin==-1) { cairo_set_source_rgb(c,1,0,0); }
-		else if(element_h(e)) { cairo_set_source_rgb(c,0.7,0.7,0.7); }
+		if(e==se) { cairo_set_source_rgb(c,1,0,0); }
+		else if(board_element_h(e)) { cairo_set_source_rgb(c,0.7,0.7,0.7); }
 		else { cairo_set_source_rgb(c,0,0,0); }
 
-		cairo_move_to(c,element_x(e)/10.0,element_y(e)/10.0-3);
-		cairo_show_text(c,element_name(e));
+		cairo_move_to(c,board_element_x(e)/10.0,board_element_y(e)/10.0-3);
+		cairo_show_text(c,e0);
 
 		int j,x,y;
-		for(j=1;draw_pin(c,e,j);j++) { ; }
+		struct package *p=element_package(e0);
+		//for(j=1;draw_pin(c,e,p,j);j++) { ; }
 
 		cairo_save(c);
 		for(j=0;;j++) {
-			int r;
-			switch((r=body_line(e,j,&x,&y))) {
+			int r=package_line(p,j,&x,&y);
+			board_body_line(e,&x,&y);
+			switch(r) {
 			case PL_MOVE: cairo_move_to(c,x/10.0,y/10.0); break;
 			case PL_LINE: cairo_line_to(c,x/10.0,y/10.0); break;
 			case PL_CLOSE: cairo_close_path(c); break;
@@ -82,19 +80,22 @@ void draw(cairo_t *c) {
 	cairo_set_line_join(c,CAIRO_LINE_JOIN_ROUND);
 
 	int sc;
-	struct wire *sw=selected_wire_corner(&sc);
-	struct wire *w;
-	for(i=0;(w=wire(i));i++) {
+	struct board_wire *sw=selected_wire_corner(&sc);
+	struct wire *w0;
+	for(i=0;(w0=wire(i));i++) {
 		int j,x,y;
-		if(element_h(wire_a(w,0))) continue;
-		if(element_h(wire_b(w,0))) continue;
-		wire_corner(w,0,&x,&y);
+		if(board_element_h(board_element_find(wire_a(w0)))) continue;
+		if(board_element_h(board_element_find(wire_b(w0)))) continue;
+
+		struct board_wire *w=board_find_wire(wire_a(w0),wire_ap(w0),wire_b(w0),wire_bp(w0));
+
+		board_corner(w,0,&x,&y);
 		int cn=i%ncolors;
 		cairo_set_source_rgb(c,colors[cn][0],colors[cn][1],colors[cn][2]);
 		cairo_set_line_width(c,5);
 		cairo_move_to(c,x/10.0,y/10.0);
 
-		for(j=1;wire_corner(w,j,&x,&y);j++) {
+		for(j=1;board_corner(w,j,&x,&y);j++) {
 			cairo_line_to(c,x/10.0,y/10.0);
 		}
 		cairo_stroke(c);
@@ -104,13 +105,13 @@ void draw(cairo_t *c) {
 
 	if(sw) {
 		int x,y;
-		if(wire_corner(sw,sc,&x,&y)) {
+		if(board_corner(sw,sc,&x,&y)) {
 			cairo_rectangle(c,x/10.0-5,y/10.0-5,10,10);
 			cairo_stroke(c);
 
 			int x1,y1;
-			if(!wire_corner(sw,sc+1,&x1,&y1)) {
-				wire_corner(sw,sc-1,&x1,&y1);
+			if(!board_corner(sw,sc+1,&x1,&y1)) {
+				board_corner(sw,sc-1,&x1,&y1);
 			}
 			cairo_save(c);
 			cairo_set_source_rgb(c,0,1,0.5);

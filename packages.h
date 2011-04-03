@@ -2,7 +2,7 @@
 #define PACKAGES_H
 
 struct package *package(char *);
-int package_pin_rect(struct package *,int,int *x, int *y, int *w, int *h);
+int package_pin_rect(struct package *,int,int x[4], int y[4]);
 int package_line(struct package *,unsigned int,int *x0,int *y0);
 
 void package_name(struct package *,char name[32]);

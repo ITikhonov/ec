@@ -166,6 +166,21 @@ static void insert(char *name) {
 	}
 }
 
+void load_commands(char *s) {
+        char buf[1024],*p=0;
+        FILE *f=fopen(s,"r");
+        for(;;) {
+                int c=fgetc(f);
+                switch(c) {
+                case '[': p=buf; continue;
+                case ']': if(p) { *p++=0; command(buf); p=0; } continue;
+                case ' ': if(p) { *p++=0; command(buf); p=buf; } continue;
+                case EOF: goto exit;
+                default: if(p) *p++=c;
+                }
+        }
+        exit:;
+}
 int command(char *s) {
 	printf("command '%s'\n",s);
 	switch(*s) {
@@ -180,6 +195,7 @@ int command(char *s) {
 	case 'h': hide(); break;
 	case 's': save(s+1); break;
 	case 'l': load(s+1); break;
+	case 'c': load_commands(s+1); break;
 	case 'i': insert(s+1); break;
 	case 'q': return 1;
 	//case '=': name(s+1); break;

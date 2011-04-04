@@ -37,6 +37,8 @@ struct board_wire *board_find_wire(char *a,int ap,char *b,int bp) {
 }
 
 struct board_wire *board_make_wire(char *a,int ap,char *b,int bp) {
+	printf("board_make_wire %s %d %s %d\n",a,ap,b,bp);
+
 	struct board_wire *w=wires+wiren++;
 	strcpy(w->a,a); strcpy(w->b,b);
 	w->ap=ap; w->bp=bp;
@@ -102,12 +104,6 @@ struct board_wire *board_pick_corner(int x,int y,int *no,int nth) {
 	return 0;
 }
 
-
-struct board_wire *board_wire(unsigned int i) {
-	if(i<wiren) return wires+i;
-	return 0;
-}
-
 char *board_wire_a(struct board_wire *w) { return w->a; }
 char *board_wire_b(struct board_wire *w) { return w->b; }
 int board_wire_ap(struct board_wire *w) { return w->ap; }
@@ -122,10 +118,11 @@ void board_wires_load(FILE *f) {
 			char a[32],b[32];
 			int ap,bp;
                         fscanf(f," %31s %d %31s %d\n",a,&ap,b,&bp);
-			cw=board_find_wire(a,ap,b,bp);
+			cw=board_make_wire(a,ap,b,bp);
 		} else if(c=='C') {
 			int x,y;
                         fscanf(f," %d %d\n",&x,&y);
+			printf("adding corner for %p %d %d\n",cw,x,y);
 			if(cw) board_add_corner(cw,cw->cn,x,y);
 		} else break;
 	}

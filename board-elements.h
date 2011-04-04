@@ -1,4 +1,4 @@
-struct board_element *board_element(unsigned int i);
+struct board_element;
 
 int board_element_x(struct board_element *e);
 int board_element_y(struct board_element *e);

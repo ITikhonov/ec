@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "elements.h"
+#include "board-elements.h"
 #include "packages.h"
 
 static struct element {
@@ -29,11 +30,20 @@ static struct element *element_find(char *s) {
 }
 
 char *element_create(char *s) {
-	struct element *e=elements+elements_n;
+	struct element *e;
+	if((e=element_find(s))) return e->name;
+
+	e=elements+elements_n;
 	strncpy(e->name,s,31);
 	e->p=0;
 	elements_n++;
 	return e->name;
+}
+
+struct board_element *board_element(char *s) {
+	struct board_element *e=board_element_find(s);
+	if(e) return e;
+	return board_element_create(s);
 }
 
 struct package *element_package(char *e) { return element_find(e)->p; }

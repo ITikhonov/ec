@@ -7,3 +7,5 @@ char *wire_b(struct wire *);
 int wire_ap(struct wire *);
 int wire_bp(struct wire *);
 
+struct board_wire *board_wire(struct wire *);
+

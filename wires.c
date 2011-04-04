@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "wires.h"
+#include "board-wires.h"
 #include "elements.h"
 
 static struct wire {
@@ -13,6 +14,12 @@ static struct wire {
 } wires[1024];
 
 static int wiren=0;
+
+struct board_wire *board_wire(struct wire *w) {
+	struct board_wire *r=board_find_wire(w->a,w->ap,w->b,w->bp);
+	if(r) return r;
+	return board_make_wire(w->a,w->ap,w->b,w->bp);
+}
 
 struct wire *find_wire(char *a,int ap,char *b,int bp) {
 	int i;
@@ -26,7 +33,7 @@ struct wire *find_wire(char *a,int ap,char *b,int bp) {
 struct wire *make_wire(char *a,int ap,char *b,int bp) {
 	struct wire *w=wires+wiren++;
 	strcpy(w->a,a); strcpy(w->b,b);
-	w->ap=bp; w->bp=bp;
+	w->ap=ap; w->bp=bp;
 	return w;
 }
 

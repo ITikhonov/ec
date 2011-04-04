@@ -39,6 +39,7 @@ static char e[32];
 static int spin=-1;
 
 void select_element(char *s) {
+	element_create(s);
 	strcpy(e,s);
 }
 

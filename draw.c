@@ -9,36 +9,24 @@
 #include "board-commands.h"
 #include "colors.h"
 
-#if 0
-
-static int draw_pin(cairo_t *c,char *e,int n) {
+static int draw_pin(cairo_t *c,struct board_element *e,struct package *p,int n) {
 	int x[4],y[4];
 
-
-
-	if(!pin_rect(e,n,x,y)) return 0;
-
-	int spin;
-	struct element *se=selected(&spin);
+	if(!package_pin_rect(p,n,x,y)) return 0;
+	board_pin_rect(e,x,y);
 
 	cairo_save(c);
-	if(se==e && spin==n) {
-		cairo_set_source_rgb(c,1,0,0);
-	}
-
 	cairo_move_to(c,x[0]/10.0,y[0]/10.0);
 	cairo_line_to(c,x[1]/10.0,y[1]/10.0);
 	cairo_line_to(c,x[2]/10.0,y[2]/10.0);
 	cairo_line_to(c,x[3]/10.0,y[3]/10.0);
 	cairo_close_path(c);
-	if(!element_f(e)) { cairo_fill_preserve(c); }
+	if(!board_element_f(e)) { cairo_fill_preserve(c); }
 	cairo_stroke(c);
 
 	cairo_restore(c);
 	return 1;
 }
-
-#endif
 
 void draw(cairo_t *c) {
 	int i;
@@ -47,7 +35,7 @@ void draw(cairo_t *c) {
 	cairo_save(c);
 	char *e0;
 	for(i=0;(e0=element(i));i++) {
-		struct board_element *e=board_element_find(e0);
+		struct board_element *e=board_element(e0);
 
 		if(e==se) { cairo_set_source_rgb(c,1,0,0); }
 		else if(board_element_h(e)) { cairo_set_source_rgb(c,0.7,0.7,0.7); }
@@ -58,7 +46,7 @@ void draw(cairo_t *c) {
 
 		int j,x,y;
 		struct package *p=element_package(e0);
-		//for(j=1;draw_pin(c,e,p,j);j++) { ; }
+		for(j=1;draw_pin(c,e,p,j);j++) { ; }
 
 		cairo_save(c);
 		for(j=0;;j++) {
@@ -84,10 +72,10 @@ void draw(cairo_t *c) {
 	struct wire *w0;
 	for(i=0;(w0=wire(i));i++) {
 		int j,x,y;
-		if(board_element_h(board_element_find(wire_a(w0)))) continue;
-		if(board_element_h(board_element_find(wire_b(w0)))) continue;
+		if(board_element_h(board_element(wire_a(w0)))) continue;
+		if(board_element_h(board_element(wire_b(w0)))) continue;
 
-		struct board_wire *w=board_find_wire(wire_a(w0),wire_ap(w0),wire_b(w0),wire_bp(w0));
+		struct board_wire *w=board_wire(w0);
 
 		board_corner(w,0,&x,&y);
 		int cn=i%ncolors;

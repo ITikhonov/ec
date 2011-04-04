@@ -1,4 +1,3 @@
-struct board_wire *board_wire(unsigned int i);
 struct board_wire *board_find_wire(char *a,int ap,char *b,int bp);
 struct board_wire *board_make_wire(char *a,int ap,char *b,int bp);
 

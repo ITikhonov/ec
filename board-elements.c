@@ -14,7 +14,7 @@ static struct board_element {
 
 static int elements_n=0;
 
-struct board_element *board_element(unsigned int i) {
+static struct board_element *iterate(unsigned int i) {
 	if(i<elements_n) return elements+i;
 	return 0;
 }
@@ -29,7 +29,7 @@ char *board_element_name(struct board_element *e) { return e->name; }
 struct board_element *board_element_find(char *s) {
         int i;
 	struct board_element *e;
-        for(i=0;(e=board_element(i));i++) {
+        for(i=0;(e=iterate(i));i++) {
 		if(strcmp(s,e->name)==0) return e;
 	}
 	return 0;
@@ -92,7 +92,7 @@ void board_body_line(struct board_element *e,int *x,int *y) {
 void board_elements_save(FILE *f) {
         int i;
 	struct board_element *e;
-        for(i=0;(e=board_element(i));i++) {
+        for(i=0;(e=iterate(i));i++) {
 		fprintf(f,"E %s %d %d %d %d %d\n",e->name,e->x,e->y,e->a,e->f,e->h);
 	}
 	fprintf(f,".\n");
